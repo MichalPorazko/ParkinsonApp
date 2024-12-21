@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Sensors"
+rootProject.name = "ParkinsonApp"
 include(":app")
  

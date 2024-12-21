@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.sensors"
+    namespace = "com.example.ParkinsonApp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.sensors"
+        applicationId = "com.example.ParkinsonApp"
         minSdk = 28
         targetSdk = 34
         versionCode = 1
@@ -73,7 +73,7 @@ dependencies {
     val nav_version = "2.8.4"
     implementation("androidx.navigation:navigation-compose:$nav_version")
 
-    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-analytics")
 
     // Firebase Authentication
