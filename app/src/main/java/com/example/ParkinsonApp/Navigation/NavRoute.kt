@@ -14,10 +14,35 @@ sealed interface NavRoute {
     data class SignUp(val userType: String)
 
     @Serializable
-    object DoctorMain
-
-    @Serializable
     object PatientMain
 
+    @Serializable
+    object PatientProfile
+
+    @Serializable
+    object PatientMedication
+
+    @Serializable
+    data object DoctorMain
+
+    @Serializable
+    data object DoctorPatients
+
+    @Serializable
+    data object DoctorProfile
+
+
+}
+
+sealed class SubGraph {
+
+    @Serializable
+    data object Auth : SubGraph()
+
+    @Serializable
+    data object DoctorDashboard : SubGraph()
+
+    @Serializable
+    data object PatientDashboard : SubGraph()
 
 }

@@ -1,4 +1,4 @@
-package com.example.ParkinsonApp.Screens
+package com.example.ParkinsonApp.Screens.Doctor
 
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable

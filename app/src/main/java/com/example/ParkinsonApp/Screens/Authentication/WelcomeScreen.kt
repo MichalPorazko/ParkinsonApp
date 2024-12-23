@@ -1,4 +1,4 @@
-package com.example.ParkinsonApp.Screens
+package com.example.ParkinsonApp.Screens.Authentication
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

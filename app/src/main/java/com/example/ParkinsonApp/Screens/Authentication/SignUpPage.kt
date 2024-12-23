@@ -1,4 +1,4 @@
-package com.example.ParkinsonApp.Screens
+package com.example.ParkinsonApp.Screens.Authentication
 
 import android.content.ContentValues.TAG
 import android.util.Log
@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.ParkinsonApp.Authentication.SignUpUIEvent
-import com.example.ParkinsonApp.Authentication.SignupViewModel
+import com.example.ParkinsonApp.Authentication.SignUpViewModel
 import com.example.ParkinsonApp.UIComponents.ButtonComponent
 import com.example.ParkinsonApp.UIComponents.ClickableLoginTextComponent
 import com.example.ParkinsonApp.UIComponents.DividerTextComponent
@@ -31,7 +31,7 @@ import com.example.ParkinsonApp.UIComponents.NormalTextComponent
 import com.example.ParkinsonApp.UIComponents.PasswordTextFieldComponent
 
 @Composable
-fun SignUpPage(signupViewModel: SignupViewModel = viewModel(), signUp: () -> Unit, onLoginClick: () -> Unit) {
+fun SignUpPage(signupViewModel: SignUpViewModel = viewModel(), signUp: () -> Unit, onLoginClick: () -> Unit) {
 
     Box(
         modifier = Modifier.fillMaxSize(),

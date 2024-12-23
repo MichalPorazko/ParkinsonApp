@@ -1,4 +1,4 @@
-package com.example.ParkinsonApp.Screens
+package com.example.ParkinsonApp.Screens.Authentication
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import com.example.ParkinsonApp.Authentication.LoginUIEvent
 import com.example.ParkinsonApp.Authentication.LoginViewModel

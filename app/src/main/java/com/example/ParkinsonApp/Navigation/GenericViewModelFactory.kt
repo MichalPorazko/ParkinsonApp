@@ -1,4 +1,4 @@
-package com.example.ParkinsonApp.Authentication
+package com.example.ParkinsonApp.Navigation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
