@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import com.example.ParkinsonApp.Firebase.FirebaseRepository
 import android.util.Log
 
-class SignupViewModel(private val firebaseRepository: FirebaseRepository) : ViewModel() {
+class SignUpViewModel(private val firebaseRepository: FirebaseRepository) : ViewModel() {
 
-    private val TAG = SignupViewModel::class.simpleName
+    private val TAG = SignUpViewModel::class.simpleName
 
 
     var registrationUIState = mutableStateOf(SignUpUIStatus())
