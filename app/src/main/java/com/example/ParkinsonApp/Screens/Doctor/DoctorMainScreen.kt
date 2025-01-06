@@ -1,264 +1,231 @@
 package com.example.ParkinsonApp.Screens.Doctor
 
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import com.example.ParkinsonApp.Navigation.SharedViewModel
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.ParkinsonApp.DataTypes.PatientAction
 import com.example.ParkinsonApp.Firebase.FirebaseRepository
+import com.example.ParkinsonApp.Navigation.SharedViewModel
+import com.example.ParkinsonApp.R
 
 @Composable
 fun DoctorMainScreen(
     sharedViewModel: SharedViewModel,
-    onLogout: () -> Unit,
-    onPatientSelected: (String) -> Unit,
-    onRefresh: () -> Unit
+    onAddPatientClick: () -> Unit,
+    onYourPatientsClick: () -> Unit,
+    onYourProfileClick: () -> Unit,
 ) {
-    // A Scaffold to provide a top bar, potential floating action buttons, and a content area.
-    Scaffold(
-        content = { paddingValues ->
-            // Content area for patient list and other UI elements
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+    val recentActions = remember { getRecentPatientActions() }
+    val pagerState = rememberPagerState{recentActions.size}
 
-                Toolbar(
-                    onAddPatient = { /* Add Patient Action */ },
-                    onFilterPatients = { /* Filter Action */ },
-                    onRefresh = onRefresh // Reuse the existing refresh callback
-                )
-
-                AnnouncementsSection(
-                    announcements = listOf(
-                        "Critical Alert: Patient A requires immediate attention.",
-                        "Reminder: Update patient files before end of the week.",
-                        "System downtime scheduled for 3 AM tomorrow."
-                    )
-                )
-                // Placeholder for refresh button or indicator
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Button(onClick = onRefresh) {
-                        Text("Refresh")
-                    }
-                }
-
-                StatisticsSection(
-                    statistics = mapOf(
-                        "Total Patients" to "15",
-                        "Critical Patients" to "3",
-                        "Average Dialysis Sessions" to "4/week"
-                    )
-                )
-
-                // Placeholder for a patient list or other relevant information
-                // We'll refine this in the next part
-                Text(text = "List of Patients will appear here")
-
-                PatientList(
-                    patients = listOf("Patient A", "Patient B", "Patient C"),
-                    onPatientSelected = onPatientSelected
-                )
-            }
-        }
-    )
-}
-
-@Composable
-fun PatientList(
-    patients: List<String>, // Replace String with your PatientInfo class if available
-    onPatientSelected: (String) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(patients) { patient ->
-            PatientCard(patientName = patient, onClick = { onPatientSelected(patient) })
-        }
-    }
-}
-
-@Composable
-fun PatientCard(
-    patientName: String,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = patientName,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
-            )
-            Button(onClick = onClick) {
-                Text(text = "View")
-            }
-        }
-    }
-}
-
-@Composable
-fun AnnouncementsSection(
-    announcements: List<String> // List of announcements/messages
-) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Announcements",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(vertical = 8.dp)
+
+        // Swiper for recent patient actions
+        RecentActionsPager(
+            recentActions = recentActions,
+            pagerState = pagerState
         )
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(announcements) { announcement ->
-                AnnouncementCard(announcement = announcement)
-            }
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Buttons
+        ActionButtonsSection(
+            onAddPatientClick = onAddPatientClick,
+            onYourPatientsClick = onYourPatientsClick,
+            onYourProfileClick = onYourProfileClick
+        )
+    }
+}
+
+@Composable
+fun RecentActionsPager(
+    recentActions: List<PatientAction>,
+    pagerState: PagerState
+) {
+    HorizontalPager(
+        state = pagerState,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+    ) { page ->
+        if (page < recentActions.size) {
+            val action = recentActions[page]
+            RecentActionCard(action)
         }
     }
 }
 
 @Composable
-fun AnnouncementCard(announcement: String) {
+fun RecentActionCard(action: PatientAction) {
     Card(
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         modifier = Modifier
+            .padding(16.dp)
             .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Text(
-            text = announcement,
-            style = MaterialTheme.typography.bodyMedium,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(16.dp)
-        )
-    }
-
-
-}
-
-@Composable
-fun StatisticsSection(
-    statistics: Map<String, String> // Key-value pairs for stats (e.g., "Critical Patients" -> "5")
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = "Statistics",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(statistics.entries.toList()) { (key, value) ->
-                StatisticCard(statTitle = key, statValue = value)
+            // Patient's photo
+            Image(
+                painter = painterResource(id = action.patientImageRes),
+                contentDescription = "Patient Photo",
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(50.dp)),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            // Patient's name
+            Text(
+                text = "${action.patientFirstName} ${action.patientLastName}",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            // Action description with icon
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = action.actionIconRes),
+                    contentDescription = "Action Icon",
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = action.actionDescription,
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
         }
     }
 }
 
 @Composable
-fun StatisticCard(
-    statTitle: String,
-    statValue: String
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = statTitle,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Text(
-                text = statValue,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
-
-@Composable
-fun Toolbar(
-    onAddPatient: () -> Unit,
-    onFilterPatients: () -> Unit,
-    onRefresh: () -> Unit
+fun ActionButtonsSection(
+    onAddPatientClick: () -> Unit,
+    onYourPatientsClick: () -> Unit,
+    onYourProfileClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        Button(onClick = onAddPatient) {
-            Text(text = "Add Patient")
-        }
-        Button(onClick = onFilterPatients) {
-            Text(text = "Filter")
-        }
-        Button(onClick = onRefresh) {
-            Text(text = "Refresh")
+        // Button 1: Add a Patient
+        ActionButton(
+            text = "Add Patient",
+            iconResId = R.drawable.add_patient,
+            onClick = onAddPatientClick
+        )
+
+        // Button 2: Your Patients
+        ActionButton(
+            text = "Your Patients",
+            iconResId = R.drawable.patients,
+            onClick = onYourPatientsClick
+        )
+
+        // Button 3: Your Profile
+        ActionButton(
+            text = "Your Profile",
+            iconResId = R.drawable.doctor,
+            onClick = onYourProfileClick
+        )
+    }
+}
+
+@Composable
+fun ActionButton(
+    text: String,
+    iconResId: Int,
+    onClick: () -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .size(100.dp)
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                painter = painterResource(id = iconResId),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
         }
     }
+}
+
+fun getRecentPatientActions(): List<PatientAction> {
+    // Placeholder data; replace with actual data retrieval in your app
+    return listOf(
+        PatientAction(
+            patientFirstName = "Joe",
+            patientLastName = "Doe",
+            patientImageRes = R.drawable.add_patient, // Replace with actual image resource
+            actionDescription = "Added a glass of water",
+            actionIconRes = R.drawable.medication_24px // Replace with actual icon resource
+        ),
+        PatientAction(
+            patientFirstName = "Jane",
+            patientLastName = "Smith",
+            patientImageRes = R.drawable.patient_list_24px,
+            actionDescription = "Confirmed medication intake",
+            actionIconRes = R.drawable.medication_24px
+        ),
+        // Add more actions as needed (up to 5 recent actions)
+    )
 }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewDoctorMainScreen() {
-    val sharedViewModel = SharedViewModel(firebaseRepository = FirebaseRepository())
     DoctorMainScreen(
-        sharedViewModel = sharedViewModel,
-        onLogout = { /* Handle logout action */ },
-        onPatientSelected = { /* Handle patient selection */ },
-        onRefresh = { /* Handle refresh action */ }
+        sharedViewModel = SharedViewModel(firebaseRepository = FirebaseRepository()),
+        onAddPatientClick = {},
+        onYourPatientsClick = {},
+        onYourProfileClick = {}
     )
 }
 

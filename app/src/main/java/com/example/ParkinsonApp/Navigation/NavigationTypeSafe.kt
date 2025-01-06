@@ -12,8 +12,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.ParkinsonApp.Authentication.LoginViewModel
 import com.example.ParkinsonApp.Authentication.SignUpViewModel
+import com.example.ParkinsonApp.DataTypes.Medication
+import com.example.ParkinsonApp.DataTypes.ScheduleEntry
 import com.example.ParkinsonApp.Firebase.FirebaseRepository
 import com.example.ParkinsonApp.Navigation.BottomNavigation.BottomNavItem
+import com.example.ParkinsonApp.R
 import com.example.ParkinsonApp.Screens.Doctor.DoctorMainScreen
 import com.example.ParkinsonApp.Screens.Authentication.LoginPage
 import com.example.ParkinsonApp.Screens.Patient.PatientMedicationScreen
@@ -21,6 +24,7 @@ import com.example.ParkinsonApp.Screens.Patient.PatientMainScreen
 import com.example.ParkinsonApp.Screens.Patient.PatientProfileScreen
 import com.example.ParkinsonApp.Screens.Authentication.SignUpPage
 import com.example.ParkinsonApp.Screens.Authentication.WelcomeScreen
+import com.example.ParkinsonApp.Screens.Doctor.DoctorPatientListScreen
 
 @Composable
 fun NavigationTypeSafe() {
@@ -97,11 +101,42 @@ fun NavigationTypeSafe() {
             Log.d("NavigationTypeSafe", "Navigated to doctorMainScreen")
             DoctorMainScreen(
                 sharedViewModel = sharedViewModel,
-                onLogout = {navController.navigate(NavRoute.Welcome) },
-                onPatientSelected = {navController.navigate(it) },
-                onRefresh = { sharedViewModel.refreshData() }
-            )
+                onAddPatientClick= { navController.navigate(NavRoute.DoctorPatients)},
+                onYourPatientsClick = { navController.navigate(NavRoute.DoctorPatients) },
+                onYourProfileClick = { navController.navigate(NavRoute.DoctorProfile) })
         }
+
+        composable<NavRoute.DoctorPatients>{
+            Log.d("NavigationTypeSafe", "Navigated to doctorMainScreen")
+            DoctorPatientListScreen(
+                sharedViewModel = sharedViewModel,
+                onPatientClicked = { patient ->
+                    // Navigate to the detailed patient page
+                    navController.navigate("patientDetails/${patient.id}")
+                }
+        )}
+
+        /**
+         * composable("doctorPatientList") {
+         *         DoctorPatientListScreen(
+         *             sharedViewModel = sharedViewModel,
+         *             onPatientClicked = { patient ->
+         *                 navController.navigate("patientDetails/${patient.id}")
+         *             }
+         *         )
+         *     }
+         *     composable(
+         *         route = "patientDetails/{patientId}",
+         *         arguments = listOf(navArgument("patientId") { type = NavType.StringType })
+         *     ) { backStackEntry ->
+         *         val patientId = backStackEntry.arguments?.getString("patientId") ?: ""
+         *         PatientDetailsScreen(
+         *             patientId = patientId,
+         *             sharedViewModel = sharedViewModel
+         *         )
+         *     }
+         *
+         * */
     }
 
     fun NavGraphBuilder.patientGraph(navController: NavHostController) {
@@ -117,6 +152,8 @@ fun NavigationTypeSafe() {
                             Log.d("NavigationTypeSafe", "Navigated to PatientMainScreen")
                             PatientMainScreen(
                                 sharedViewModel = sharedViewModel,
+                                onMedicationBoxClicked = {},
+                                onMealBoxClicked = {},
                                 onLogout = { navController.navigate(NavRoute.Welcome) }
                             )
                         }
@@ -126,8 +163,21 @@ fun NavigationTypeSafe() {
                         composable<NavRoute.PatientMedication> {
                             Log.d("NavigationTypeSafe", "Navigated to PatientMedicationScreen")
                             PatientMedicationScreen(
-                                sharedViewModel = sharedViewModel,
-                                onLogout = { navController.navigate(NavRoute.Welcome) }
+                                patientName = "Kyle",
+                                yearBorn = 1983,
+                                yearDiagnosed = 2005,
+                                medications = listOf(
+                                    Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px),
+                                    Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px),
+                                    Medication("Ibuprofen", "50mg", R.drawable.medication_24px),
+                                    Medication("Custom10", "10mg", R.drawable.medication_24px)
+                                ),
+                                schedule = listOf(
+                                    ScheduleEntry("07:00", listOf(Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px))),
+                                    ScheduleEntry("10:00", listOf(Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px))),
+                                    ScheduleEntry("16:00", listOf(Medication("Ibuprofen", "50mg", R.drawable.medication_24px)))
+                                ),
+                                onShareClick = { navController.navigate(NavRoute.Welcome) }
                             )
                         }
                     }

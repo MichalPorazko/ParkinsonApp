@@ -38,8 +38,6 @@ fun LoginPage(
     onLoginSuccess: () -> Unit,
     onRegisterClick: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -65,12 +63,12 @@ fun LoginPage(
                 MyTextFieldComponent(
                     labelValue = "Email",
                     painterResource = painterResource(id = R.drawable.ic_launcher_background),
-                        onTextChanged ={ loginViewModel.onEvent(LoginUIEvent.EmailChanged(email))})
+                        onTextChanged ={ loginViewModel.onEvent(LoginUIEvent.EmailChanged(it))})
 
                 PasswordTextFieldComponent(
                     labelValue = "Password",
                     painterResource = painterResource(id = R.drawable.ic_launcher_background),
-                    { loginViewModel.onEvent(LoginUIEvent.EmailChanged(password))},
+                    { loginViewModel.onEvent(LoginUIEvent.PasswordChanged(it))},
                     loginViewModel.loginUIState.value.passwordError
 
                 )

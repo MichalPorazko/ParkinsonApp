@@ -77,11 +77,15 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-analytics")
 
+    implementation("androidx.compose.foundation:foundation:1.5.0")
+    implementation("androidx.compose.material:material:1.5.0")
+    implementation("com.google.accompanist:accompanist-pager:0.31.2-alpha")
+
     // Firebase Authentication
-    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation(libs.google.firebase.auth.ktx)
 
     // Firebase Firestore
-    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation(libs.firebase.firestore.ktx)
     implementation(libs.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
 
