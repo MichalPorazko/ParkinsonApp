@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,12 +38,14 @@ fun PatientMedicationScreen(patientName: String,
                             yearDiagnosed: Int,
                             medications: List<Medication>,
                             schedule: List<ScheduleEntry>,
-                            onShareClick: () -> Unit) {
+                            onShareClick: () -> Unit,
+                            paddingValues: PaddingValues
+) {
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(paddingValues)
                 .background(Color.White, shape = RoundedCornerShape(16.dp))
                 .border(1.dp, Color.Gray, shape = RoundedCornerShape(16.dp))
                 .padding(16.dp)
@@ -90,7 +93,7 @@ fun PatientMedicationScreen(patientName: String,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(medications) { medication ->
-                    MedicationItem(medication)
+                    MedicationItem(medication, paddingValues)
                 }
             }
 
@@ -99,7 +102,7 @@ fun PatientMedicationScreen(patientName: String,
             // Schedule Section
             Column(modifier = Modifier.fillMaxWidth()) {
                 schedule.forEach { entry ->
-                    ScheduleRow(entry)
+                    ScheduleRow(entry, paddingValues)
                     Spacer(modifier = Modifier.height(4.dp))
                 }
             }
@@ -118,12 +121,12 @@ fun PatientMedicationScreen(patientName: String,
     }
 
     @Composable
-    fun MedicationItem(medication: Medication) {
+    fun MedicationItem(medication: Medication, paddingValues: PaddingValues) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .width(80.dp)
-                .padding(8.dp)
+                .padding(paddingValues)
                 .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
                 .padding(8.dp)
         ) {
@@ -146,12 +149,12 @@ fun PatientMedicationScreen(patientName: String,
     }
 
     @Composable
-    fun ScheduleRow(entry: ScheduleEntry) {
+    fun ScheduleRow(entry: ScheduleEntry, paddingValues: PaddingValues) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFFF9F9F9), shape = RoundedCornerShape(8.dp))
-                .padding(8.dp),
+                .padding(paddingValues),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -215,6 +218,8 @@ fun PreviewPatientMedicationScreen() {
             ScheduleEntry("07:00", listOf(Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px))),
             ScheduleEntry("10:00", listOf(Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px))),
             ScheduleEntry("16:00", listOf(Medication("Ibuprofen", "50mg", R.drawable.medication_24px)))
-        )
-    ) { }
+        ),
+        onShareClick = { /* Handle share action */ },
+        paddingValues = PaddingValues(16.dp)
+    )
 }

@@ -33,7 +33,8 @@ fun DoctorMainScreen(
     onAddPatientClick: () -> Unit,
     onYourPatientsClick: () -> Unit,
     onYourProfileClick: () -> Unit,
-    onRecentActionClicked: (String) -> Unit
+    onRecentActionClicked: (String) -> Unit,
+    paddingValues: PaddingValues
 ) {
     val recentActions = remember { getRecentPatientActions() }
     val pagerState = rememberPagerState { recentActions.size }
@@ -49,7 +50,8 @@ fun DoctorMainScreen(
         RecentActionsPager(
             recentActions = recentActions,
             pagerState = pagerState,
-            onRecentActionClicked = onRecentActionClicked
+            onRecentActionClicked = onRecentActionClicked,
+            paddingValues = paddingValues
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -67,7 +69,8 @@ fun DoctorMainScreen(
 fun RecentActionsPager(
     recentActions: List<PatientAction>,
     pagerState: PagerState,
-    onRecentActionClicked: (String) -> Unit
+    onRecentActionClicked: (String) -> Unit,
+    paddingValues: PaddingValues
 ) {
     HorizontalPager(
         state = pagerState,
@@ -79,7 +82,8 @@ fun RecentActionsPager(
             val action = recentActions[page]
             RecentActionCard(
                 action = action,
-                onRecentActionClicked = onRecentActionClicked
+                onRecentActionClicked = onRecentActionClicked,
+                paddingValues
             )
         }
     }
@@ -88,12 +92,13 @@ fun RecentActionsPager(
 @Composable
 fun RecentActionCard(
     action: PatientAction,
-    onRecentActionClicked: (String) -> Unit
+    onRecentActionClicked: (String) -> Unit,
+    paddingValues: PaddingValues
 ) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         modifier = Modifier
-            .padding(16.dp)
+            .padding(paddingValues)
             .fillMaxWidth()
             .clickable { 
                 onRecentActionClicked(action.patientId) 
@@ -239,7 +244,8 @@ fun PreviewDoctorMainScreen() {
         onAddPatientClick = {},
         onYourPatientsClick = {},
         onYourProfileClick = {},
-        onRecentActionClicked = {}
+        onRecentActionClicked = {},
+        paddingValues = PaddingValues(0.dp)
     )
 }
 

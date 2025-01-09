@@ -64,7 +64,7 @@ class FirebaseRepository {
                             "userType" to "doctor",
                             "patients" to emptyList<String>()
                         )
-                        db.collection("doctors").document(uid).set(newDoctorDoc)
+                        db.collection("doctors").document(uid!!).set(newDoctorDoc)
                         }
 
                         "patient" -> {
@@ -74,7 +74,7 @@ class FirebaseRepository {
                                 "email" to email,
                                 "userType" to "patient",
                             )
-                            db.collection("patients").document(uid).set(newPatientDoc)
+                            db.collection("patients").document(uid!!).set(newPatientDoc)
                         }
                     }
 

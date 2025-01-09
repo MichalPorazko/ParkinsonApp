@@ -1,6 +1,7 @@
 package com.example.ParkinsonApp.Navigation
 
 import android.util.Log
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -109,27 +110,95 @@ fun NavigationTypeSafe() {
 
             composable<NavRoute.DoctorMain> {
                 Log.d("NavigationTypeSafe", "Navigated to doctorMainScreen")
-                DoctorMainScreen(
-                    sharedViewModel = sharedViewModel,
-                    onAddPatientClick= { navController.navigate(NavRoute.DoctorPatients)},
-                    onYourPatientsClick = { navController.navigate(NavRoute.DoctorPatients) },
-                    onYourProfileClick = { navController.navigate(NavRoute.DoctorProfile) },
-                    onRecentActionClicked = { patientId ->
-                        navController.navigate("patientDetails/${patientId}")
-                    })
+
             }
-            composable<NavRoute.DoctorPatients>{
-                Log.d("NavigationTypeSafe", "Navigated to doctorMainScreen")
-                DoctorPatientListScreen(
-                    sharedViewModel = sharedViewModel,
-                    onPatientClicked = { patient ->
-                        // Navigate to the detailed patient page
-                        navController.navigate("patientDetails/${patient.id}")
+
+            composable<NavRoute.DoctorMain> {
+                val currentRoute = NavRoute.DoctorMain
+                Scaffold(
+                    bottomBar = {
+                        BottomNavigationBar(
+                            items = BottomNavItem.doctorItems,
+                            currentRoute = currentRoute,
+                            onItemClicked = { navRoute ->
+                                navController.navigate(navRoute) {
+                                    popUpTo(navController.graph.findStartDestination()) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        )
                     }
-                )}
+                ) { innerPadding ->
+                    DoctorMainScreen(
+                        sharedViewModel = sharedViewModel,
+                        onAddPatientClick= { navController.navigate(NavRoute.DoctorPatients)},
+                        onYourPatientsClick = { navController.navigate(NavRoute.DoctorPatients) },
+                        onYourProfileClick = { navController.navigate(NavRoute.DoctorProfile) },
+                        onRecentActionClicked = { patientId ->
+                            navController.navigate("patientDetails/${patientId}")
+                        },
+                        paddingValues = innerPadding
+                        )
+                }
+            }
+
+            composable<NavRoute.DoctorPatients>{
+
+                val currentRoute = NavRoute.DoctorMain
+                Scaffold(
+                    bottomBar = {
+                        BottomNavigationBar(
+                            items = BottomNavItem.doctorItems,
+                            currentRoute = currentRoute,
+                            onItemClicked = { navRoute ->
+                                navController.navigate(navRoute) {
+                                    popUpTo(navController.graph.findStartDestination()) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        )
+                    }
+                ) { innerPadding ->
+                    DoctorPatientListScreen(
+                        sharedViewModel = sharedViewModel,
+                        onPatientClicked = { patient ->
+                            // Navigate to the detailed patient page
+                            navController.navigate("patientDetails/${patient.id}")
+                        },
+                        innerPadding
+                    )
+                }
+                }
             composable<NavRoute.DoctorProfile> {
-                Log.d("NavigationTypeSafe", "Navigated to doctorProfileScreen")
-                DoctorProfileScreen() }
+
+                val currentRoute = NavRoute.DoctorMain
+                Scaffold(
+                    bottomBar = {
+                        BottomNavigationBar(
+                            items = BottomNavItem.doctorItems,
+                            currentRoute = currentRoute,
+                            onItemClicked = { navRoute ->
+                                navController.navigate(navRoute) {
+                                    popUpTo(navController.graph.findStartDestination()) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        )
+                    }
+                ) { innerPadding ->
+                    Log.d("NavigationTypeSafe", "Navigated to doctorProfileScreen")
+                    DoctorProfileScreen(innerPadding)
+                }
+                 }
 
             composable<NavRoute.PatientDetails> {
                 PatientDetailsScreen(
@@ -143,6 +212,34 @@ fun NavigationTypeSafe() {
 
 
     }
+    fun NavGraphBuilder.bottomNavComposable(
+        route: NavRoute,
+        items: List<BottomNavItem>,
+        navController: NavHostController,
+        content: @Composable (paddingValues: PaddingValues) -> Unit
+    ) {
+        composable(route.toString()) {
+            Scaffold(
+                bottomBar = {
+                    BottomNavigationBar(
+                        items = items,
+                        currentRoute = route,
+                        onItemClicked = { navRoute ->
+                            navController.navigate(navRoute.toString()) {
+                                popUpTo(navController.graph.findStartDestination()) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+            ) { innerPadding ->
+                content(innerPadding)
+            }
+        }
+    }
 
     fun NavGraphBuilder.patientGraph(navController: NavHostController) {
 
@@ -150,60 +247,63 @@ fun NavigationTypeSafe() {
             startDestination = NavRoute.PatientMain,
         ) {
 
-            BottomNavItem.patientItems.forEach { item ->
-                when (item.route) {
-                    is NavRoute.PatientMain -> {
-                        composable<NavRoute.PatientMain> {
-                            Log.d("NavigationTypeSafe", "Navigated to PatientMainScreen")
-                            PatientMainScreen(
-                                sharedViewModel = sharedViewModel,
-                                onMedicationBoxClicked = {},
-                                onMealBoxClicked = {},
-                                onLogout = { navController.navigate(NavRoute.Welcome) }
-                            )
-                        }
-                    }
+            bottomNavComposable(
+                route = NavRoute.PatientMain,
+                items = BottomNavItem.patientItems,
+                navController = navController
+            ) { innerPadding ->
+                PatientMainScreen(
+                    sharedViewModel = sharedViewModel,
+                    onMedicationBoxClicked = { /* ... */ },
+                    onMealBoxClicked = { /* ... */ },
+                    onLogout = { navController.navigate(NavRoute.Welcome) },
+                    innerPadding
+                )
+            }
 
-                    is NavRoute.PatientMedication -> {
-                        composable<NavRoute.PatientMedication> {
-                            Log.d("NavigationTypeSafe", "Navigated to PatientMedicationScreen")
-                            PatientMedicationScreen(
-                                patientName = "Kyle",
-                                yearBorn = 1983,
-                                yearDiagnosed = 2005,
-                                medications = listOf(
-                                    Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px),
-                                    Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px),
-                                    Medication("Ibuprofen", "50mg", R.drawable.medication_24px),
-                                    Medication("Custom10", "10mg", R.drawable.medication_24px)
-                                ),
-                                schedule = listOf(
-                                    ScheduleEntry("07:00", listOf(Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px))),
-                                    ScheduleEntry("10:00", listOf(Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px))),
-                                    ScheduleEntry("16:00", listOf(Medication("Ibuprofen", "50mg", R.drawable.medication_24px)))
-                                ),
-                                onShareClick = { navController.navigate(NavRoute.Welcome) }
-                            )
-                        }
-                    }
+            bottomNavComposable(
+                route = NavRoute.PatientMedication,
+                items = BottomNavItem.patientItems,
+                navController = navController
+            ) { innerPadding ->
+                PatientMedicationScreen(
+                    patientName = "Kyle",
+                    yearBorn = 1983,
+                    yearDiagnosed = 2005,
+                    medications = listOf(
+                        Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px),
+                        Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px),
+                        Medication("Ibuprofen", "50mg", R.drawable.medication_24px),
+                        Medication("Custom10", "10mg", R.drawable.medication_24px)
+                    ),
+                    schedule = listOf(
+                        ScheduleEntry("07:00", listOf(Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px))),
+                        ScheduleEntry("10:00", listOf(Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px))),
+                        ScheduleEntry("16:00", listOf(Medication("Ibuprofen", "50mg", R.drawable.medication_24px)))
+                    ),
+                    onShareClick = { navController.navigate(NavRoute.Welcome) },
+                    innerPadding
+                )
+            }
 
-                    is NavRoute.PatientProfile -> {
-                        composable<NavRoute.PatientProfile> {
-                            Log.d("NavigationTypeSafe", "Navigated to PatientProfileScreen")
-                            PatientProfileScreen(
-                                sharedViewModel = sharedViewModel,
-                                onLogout = { navController.navigate(NavRoute.Welcome) }
-                            )
-                        }
-                    }
+            bottomNavComposable(
+                route = NavRoute.PatientProfile,
+                items = BottomNavItem.patientItems,
+                navController = navController
+            ) { innerPadding ->
+                PatientProfileScreen(
+                    sharedViewModel = sharedViewModel,
+                    onLogout = { navController.navigate(NavRoute.Welcome) },
+                    innerPadding
+                )
+            }
 
-                    else -> {}
                 }
 
 
             }
-        }
-    }
+
+
 
 
     NavHost(navController = navController, startDestination = SubGraph.Auth) {
@@ -211,6 +311,8 @@ fun NavigationTypeSafe() {
         doctorGraph(navController)
         patientGraph(navController)
     }
+
+
 
 
 

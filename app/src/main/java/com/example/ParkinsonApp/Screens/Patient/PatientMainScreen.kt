@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import com.example.ParkinsonApp.Navigation.SharedViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,7 +42,8 @@ fun PatientMainScreen(
     sharedViewModel: SharedViewModel,
     onMedicationBoxClicked: () -> Unit,
     onMealBoxClicked: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    paddingValues: PaddingValues
 ) {
     Column(
         modifier = Modifier
@@ -71,7 +73,8 @@ fun PatientMainScreen(
         NextMealBox(
             nextMealTime = "12:00 PM",
             onMealBoxClicked = onMealBoxClicked,
-            mealStatus = true // Example status
+            mealStatus = true,
+            paddingValues
         )
 
         // Water Intake
@@ -91,12 +94,13 @@ fun PatientMainScreen(
 fun NextMealBox(
     nextMealTime: String,
     onMealBoxClicked: () -> Unit,
-    mealStatus: Boolean // true for green (ready), false for red (not ready)
+    mealStatus: Boolean,
+    paddingValues: PaddingValues
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(paddingValues )
             .clickable { onMealBoxClicked() },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -295,6 +299,7 @@ fun PreviewPatientMainScreen() {
         sharedViewModel = sharedViewModel,
         onMedicationBoxClicked = {},
     onMealBoxClicked = {},
-        onLogout = { /* Handle logout action */ }
+        onLogout = { /* Handle logout action */ },
+        paddingValues = PaddingValues(16.dp)
     )
 }

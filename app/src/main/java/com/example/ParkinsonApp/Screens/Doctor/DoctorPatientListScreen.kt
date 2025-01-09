@@ -20,13 +20,14 @@ import com.example.ParkinsonApp.Navigation.SharedViewModel
 @Composable
 fun DoctorPatientListScreen(
     sharedViewModel: SharedViewModel,
-    onPatientClicked: (Patient) -> Unit
+    onPatientClicked: (Patient) -> Unit,
+    paddingValues: PaddingValues
 ) {
     val patients by sharedViewModel.patients.collectAsState(initial = emptyList())
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = paddingValues,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(patients) { patient ->
@@ -90,6 +91,7 @@ fun PreviewDoctorPatientListScreen() {
     val sharedViewModel = SharedViewModel(firebaseRepository = FirebaseRepository())
     DoctorPatientListScreen(
         sharedViewModel = sharedViewModel,
-        onPatientClicked = { /* Handle patient selection */ }
+        onPatientClicked = { /* Handle patient selection */ },
+        paddingValues = PaddingValues(16.dp)
     )
 }
