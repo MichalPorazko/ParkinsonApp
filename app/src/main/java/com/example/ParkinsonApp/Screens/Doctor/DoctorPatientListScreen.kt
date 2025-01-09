@@ -38,6 +38,7 @@ fun DoctorPatientListScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpandablePatientCard(
     patient: Patient,

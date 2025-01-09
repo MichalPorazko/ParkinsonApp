@@ -15,6 +15,7 @@ fun PatientDetailsScreen(
     patientId: String,
     sharedViewModel: SharedViewModel
 ) {
+    // The sharedViewModel fetches patient details from your FirebaseRepository
     val patient by sharedViewModel.getPatientById(patientId).collectAsState(initial = null)
 
     patient?.let {
@@ -30,12 +31,17 @@ fun PatientDetailsScreen(
             // Medication Status
             Text(text = "Medication Status:", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
-            // Display medication details
-            // You can create a list or any other UI to represent medication data
+            // Display medication info or other data
         }
     } ?: run {
-        // Handle null case (patient not found)
-        Text(text = "Patient not found", modifier = Modifier.fillMaxSize(), style = MaterialTheme.typography.bodyLarge)
+        // Handle the case where patient is null (not found or data not yet loaded)
+        Text(
+            text = "Patient not found",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        )
     }
 }
 

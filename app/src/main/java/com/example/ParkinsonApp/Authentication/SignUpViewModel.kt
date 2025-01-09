@@ -4,8 +4,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.ParkinsonApp.Firebase.FirebaseRepository
 import android.util.Log
+import com.example.ParkinsonApp.DataTypes.UserType
 
-class SignUpViewModel(private val firebaseRepository: FirebaseRepository) : ViewModel() {
+class SignUpViewModel(private val firebaseRepository: FirebaseRepository, val userType: String) : ViewModel() {
 
     private val TAG = SignUpViewModel::class.simpleName
 
@@ -99,7 +100,7 @@ class SignUpViewModel(private val firebaseRepository: FirebaseRepository) : View
         firebaseRepository.signup(
             email = registrationUIState.value.email,
             password = registrationUIState.value.password,
-            userType = "user",
+            userType = userType,
             additionalInfo = mapOf(
                 "firstName" to registrationUIState.value.firstName,
                 "lastName" to registrationUIState.value.lastName

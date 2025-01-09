@@ -1,15 +1,21 @@
 package com.example.ParkinsonApp.Firebase
 
+import android.content.ContentValues.TAG
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.ParkinsonApp.DataTypes.Patient
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.auth.User
 
 
 class FirebaseRepository {
+
+    private val context: Context? = null
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -41,7 +47,7 @@ class FirebaseRepository {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val uid = auth.currentUser?.uid
+                    val uid = task.result.user?.uid
                     if (uid == null) {
                         Log.e("FirebaseRepository", "User UID is null.")
                         // Handle the error
@@ -49,14 +55,38 @@ class FirebaseRepository {
                     Log.d("FirebaseRepository", "User UID: $uid")
                     Log.d("FirebaseRepository", "Signup successful. User UID: $uid")
 
+                    when(userType){
+                        "doctor" -> {
+                            val newDoctorDoc = mapOf(
+                            "firstName" to additionalInfo["firstName"],
+                            "lastName" to additionalInfo["lastName"],
+                            "email" to email,
+                            "userType" to "doctor",
+                            "patients" to emptyList<String>()
+                        )
+                        db.collection("doctors").document(uid).set(newDoctorDoc)
+                        }
+
+                        "patient" -> {
+                            val newPatientDoc = mapOf(
+                                "firstName" to additionalInfo["firstName"],
+                                "lastName" to additionalInfo["lastName"],
+                                "email" to email,
+                                "userType" to "patient",
+                            )
+                            db.collection("patients").document(uid).set(newPatientDoc)
+                        }
+                    }
+
                     val userInfo = hashMapOf(
                         "email" to email,
+                        "password" to password,
                         "userType" to userType
                     )
                     userInfo.putAll(additionalInfo)
                     Log.d("FirebaseRepository", "User Info to save: $userInfo")
 
-                    db.collection("users").document(uid!!).set(userInfo)
+                    db.collection(userType).document(uid!!).set(userInfo)
                         .addOnSuccessListener {
                             Log.d("FirebaseRepository", "User info successfully written to Firestore")
                             _authState.value = AuthState.Authenticated
@@ -66,6 +96,14 @@ class FirebaseRepository {
                             _authState.value = AuthState.Error(e.message ?: "Failed to save user info")
                         }
                 } else {
+                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
+                    if (task.exception is FirebaseAuthWeakPasswordException) {
+                        Toast.makeText(context, "Password should be at least 6 characters",
+                            Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show()
+                    }
                     Log.e("FirebaseRepository", "Signup failed", task.exception)
                     _authState.value = AuthState.Error(
                         task.exception?.message ?: "An error occurred during signup"

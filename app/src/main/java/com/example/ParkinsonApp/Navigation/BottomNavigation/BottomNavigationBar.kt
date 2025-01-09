@@ -15,30 +15,17 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navOptions
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController) {
-    val items = BottomNavItem.patientItems
-
+fun BottomNavigationBar(
+    items: List<BottomNavItem>,
+    currentRoute: NavRoute,
+    onItemClicked: (NavRoute) -> Unit
+) {
     NavigationBar {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route?.let { destination ->
-            items.find { it.route::class.qualifiedName == destination }?.route
-        }
-
         items.forEach { item ->
-            val isSelected = item.route::class == currentRoute?.let { it::class }
-
+            val isSelected = item.route == currentRoute
             NavigationBarItem(
                 selected = isSelected,
-                onClick = {
-                    // Navigate using type-safe NavRoute
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination()) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
+                onClick = { onItemClicked(item.route) },
                 icon = {
                     Icon(
                         painter = painterResource(id = item.icon),

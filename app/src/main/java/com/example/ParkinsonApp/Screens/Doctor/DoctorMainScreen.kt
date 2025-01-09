@@ -33,9 +33,10 @@ fun DoctorMainScreen(
     onAddPatientClick: () -> Unit,
     onYourPatientsClick: () -> Unit,
     onYourProfileClick: () -> Unit,
+    onRecentActionClicked: (String) -> Unit
 ) {
     val recentActions = remember { getRecentPatientActions() }
-    val pagerState = rememberPagerState{recentActions.size}
+    val pagerState = rememberPagerState { recentActions.size }
 
     Column(
         modifier = Modifier
@@ -47,7 +48,8 @@ fun DoctorMainScreen(
         // Swiper for recent patient actions
         RecentActionsPager(
             recentActions = recentActions,
-            pagerState = pagerState
+            pagerState = pagerState,
+            onRecentActionClicked = onRecentActionClicked
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -64,7 +66,8 @@ fun DoctorMainScreen(
 @Composable
 fun RecentActionsPager(
     recentActions: List<PatientAction>,
-    pagerState: PagerState
+    pagerState: PagerState,
+    onRecentActionClicked: (String) -> Unit
 ) {
     HorizontalPager(
         state = pagerState,
@@ -74,19 +77,27 @@ fun RecentActionsPager(
     ) { page ->
         if (page < recentActions.size) {
             val action = recentActions[page]
-            RecentActionCard(action)
+            RecentActionCard(
+                action = action,
+                onRecentActionClicked = onRecentActionClicked
+            )
         }
     }
 }
 
 @Composable
-fun RecentActionCard(action: PatientAction) {
+fun RecentActionCard(
+    action: PatientAction,
+    onRecentActionClicked: (String) -> Unit
+) {
     Card(
-        shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth()
+            .clickable { 
+                onRecentActionClicked(action.patientId) 
+            }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -205,14 +216,16 @@ fun getRecentPatientActions(): List<PatientAction> {
             patientLastName = "Doe",
             patientImageRes = R.drawable.add_patient, // Replace with actual image resource
             actionDescription = "Added a glass of water",
-            actionIconRes = R.drawable.medication_24px // Replace with actual icon resource
+            actionIconRes = R.drawable.medication_24px, // Replace with actual icon resource,
+            patientId = "patientId1"
         ),
         PatientAction(
             patientFirstName = "Jane",
             patientLastName = "Smith",
             patientImageRes = R.drawable.patient_list_24px,
             actionDescription = "Confirmed medication intake",
-            actionIconRes = R.drawable.medication_24px
+            actionIconRes = R.drawable.medication_24px,
+            patientId = "patientId2"
         ),
         // Add more actions as needed (up to 5 recent actions)
     )
@@ -225,7 +238,8 @@ fun PreviewDoctorMainScreen() {
         sharedViewModel = SharedViewModel(firebaseRepository = FirebaseRepository()),
         onAddPatientClick = {},
         onYourPatientsClick = {},
-        onYourProfileClick = {}
+        onYourProfileClick = {},
+        onRecentActionClicked = {}
     )
 }
 

@@ -1,3 +1,5 @@
+// NavRoute.kt
+
 package com.example.ParkinsonApp.Navigation
 
 import kotlinx.serialization.Serializable
@@ -5,31 +7,34 @@ import kotlinx.serialization.Serializable
 sealed interface NavRoute {
 
     @Serializable
-    object Welcome
+    data object Welcome: NavRoute
 
     @Serializable
-    data class Login(val userType: String)
+    data class Login(val userType: String): NavRoute
 
     @Serializable
-    data class SignUp(val userType: String)
+    data class SignUp(val userType: String): NavRoute
 
     @Serializable
-    object PatientMain
+    data object PatientMain: NavRoute
 
     @Serializable
-    object PatientProfile
+    data object PatientProfile: NavRoute
 
     @Serializable
-    object PatientMedication
+    data object PatientMedication: NavRoute
 
     @Serializable
-    data object DoctorMain
+    data object DoctorMain: NavRoute
 
     @Serializable
-    data object DoctorPatients
+    data object DoctorPatients: NavRoute
 
     @Serializable
-    data object DoctorProfile
+    data object DoctorProfile: NavRoute
+
+    @Serializable
+    data class PatientDetails(val patientId: String): NavRoute
 
 
 }
@@ -44,5 +49,4 @@ sealed class SubGraph {
 
     @Serializable
     data object PatientDashboard : SubGraph()
-
 }

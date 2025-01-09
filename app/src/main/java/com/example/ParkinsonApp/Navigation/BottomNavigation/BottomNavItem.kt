@@ -5,24 +5,24 @@ import com.example.ParkinsonApp.R
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class BottomNavItem<T>(val route: T, val icon: Int, val name: String) {
+sealed class BottomNavItem(val route: NavRoute, val icon: Int, val name: String) {
 
     @Serializable
-    data object PMain : BottomNavItem<NavRoute.PatientMain>(
+    data object PMain : BottomNavItem(
         route = NavRoute.PatientMain,
         icon = R.drawable.home_24px,
         name = "PatientHome"
     )
 
     @Serializable
-    data object PProfile : BottomNavItem<NavRoute.PatientProfile>(
+    data object PProfile : BottomNavItem(
         route = NavRoute.PatientProfile,
         icon = R.drawable.medication_24px,
         name = "PatientProfile"
     )
 
     @Serializable
-    data object PMedication : BottomNavItem<NavRoute.PatientMedication>(
+    data object PMedication : BottomNavItem(
         route = NavRoute.PatientMedication,
         icon = R.drawable.medication_24px,
         name = "PatientMedication"
@@ -30,21 +30,21 @@ sealed class BottomNavItem<T>(val route: T, val icon: Int, val name: String) {
 
     // Doctor Bottom Navigation Items
     @Serializable
-    data object DMain : BottomNavItem<NavRoute.DoctorMain>(
+    data object DMain : BottomNavItem(
         route = NavRoute.DoctorMain,
         icon = R.drawable.home_24px,
         name = "Home"
     )
 
     @Serializable
-    data object DPatients : BottomNavItem<NavRoute.DoctorPatients>(
+    data object DPatients : BottomNavItem(
         route = NavRoute.DoctorPatients,
         icon = R.drawable.patient_list_24px,
         name = "Patients"
     )
 
     @Serializable
-    data object DProfile : BottomNavItem<NavRoute.DoctorProfile>(
+    data object DProfile : BottomNavItem(
         route = NavRoute.DoctorProfile,
         icon = R.drawable.stethoscope_24px,
         name = "Profile"

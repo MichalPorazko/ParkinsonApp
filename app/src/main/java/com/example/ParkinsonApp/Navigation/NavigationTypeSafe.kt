@@ -1,8 +1,10 @@
 package com.example.ParkinsonApp.Navigation
 
 import android.util.Log
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -16,6 +18,7 @@ import com.example.ParkinsonApp.DataTypes.Medication
 import com.example.ParkinsonApp.DataTypes.ScheduleEntry
 import com.example.ParkinsonApp.Firebase.FirebaseRepository
 import com.example.ParkinsonApp.Navigation.BottomNavigation.BottomNavItem
+import com.example.ParkinsonApp.Navigation.BottomNavigation.BottomNavigationBar
 import com.example.ParkinsonApp.R
 import com.example.ParkinsonApp.Screens.Doctor.DoctorMainScreen
 import com.example.ParkinsonApp.Screens.Authentication.LoginPage
@@ -25,13 +28,14 @@ import com.example.ParkinsonApp.Screens.Patient.PatientProfileScreen
 import com.example.ParkinsonApp.Screens.Authentication.SignUpPage
 import com.example.ParkinsonApp.Screens.Authentication.WelcomeScreen
 import com.example.ParkinsonApp.Screens.Doctor.DoctorPatientListScreen
+import com.example.ParkinsonApp.Screens.Doctor.DoctorProfileScreen
+import com.example.ParkinsonApp.Screens.Doctor.PatientDetailsScreen
 
 @Composable
 fun NavigationTypeSafe() {
     val navController = rememberNavController()
     val firebaseRepository = FirebaseRepository()
     val loginViewModel: LoginViewModel = viewModel(factory = GenericViewModelFactory { LoginViewModel(firebaseRepository) })
-    val signupViewModel: SignUpViewModel = viewModel(factory = GenericViewModelFactory { SignUpViewModel(firebaseRepository) })
     val sharedViewModel: SharedViewModel = viewModel(factory = GenericViewModelFactory { SharedViewModel(firebaseRepository) })
 
     Log.d("NavigationTypeSafe", "Navigation initialized.")
@@ -71,6 +75,7 @@ fun NavigationTypeSafe() {
 
             composable<NavRoute.SignUp> {
                 val user = it.toRoute<NavRoute.SignUp>().userType
+                val signupViewModel: SignUpViewModel = viewModel(factory = GenericViewModelFactory { SignUpViewModel(firebaseRepository, user) })
                 Log.d("NavigationTypeSafe", "Navigated to SignUp screen for user: $user")
                 SignUpPage(
                     signupViewModel,
@@ -97,46 +102,46 @@ fun NavigationTypeSafe() {
     }
 
     fun NavGraphBuilder.doctorGraph(navController: NavHostController){
-        composable<NavRoute.DoctorMain> {
-            Log.d("NavigationTypeSafe", "Navigated to doctorMainScreen")
-            DoctorMainScreen(
-                sharedViewModel = sharedViewModel,
-                onAddPatientClick= { navController.navigate(NavRoute.DoctorPatients)},
-                onYourPatientsClick = { navController.navigate(NavRoute.DoctorPatients) },
-                onYourProfileClick = { navController.navigate(NavRoute.DoctorProfile) })
+
+        navigation<SubGraph.DoctorDashboard>(
+            startDestination = NavRoute.DoctorMain
+        ){
+
+            composable<NavRoute.DoctorMain> {
+                Log.d("NavigationTypeSafe", "Navigated to doctorMainScreen")
+                DoctorMainScreen(
+                    sharedViewModel = sharedViewModel,
+                    onAddPatientClick= { navController.navigate(NavRoute.DoctorPatients)},
+                    onYourPatientsClick = { navController.navigate(NavRoute.DoctorPatients) },
+                    onYourProfileClick = { navController.navigate(NavRoute.DoctorProfile) },
+                    onRecentActionClicked = { patientId ->
+                        navController.navigate("patientDetails/${patientId}")
+                    })
+            }
+            composable<NavRoute.DoctorPatients>{
+                Log.d("NavigationTypeSafe", "Navigated to doctorMainScreen")
+                DoctorPatientListScreen(
+                    sharedViewModel = sharedViewModel,
+                    onPatientClicked = { patient ->
+                        // Navigate to the detailed patient page
+                        navController.navigate("patientDetails/${patient.id}")
+                    }
+                )}
+            composable<NavRoute.DoctorProfile> {
+                Log.d("NavigationTypeSafe", "Navigated to doctorProfileScreen")
+                DoctorProfileScreen() }
+
+            composable<NavRoute.PatientDetails> {
+                PatientDetailsScreen(
+                    patientId = it.toRoute<NavRoute.PatientDetails>().patientId,
+                    sharedViewModel = sharedViewModel
+                )
+
+            }
         }
 
-        composable<NavRoute.DoctorPatients>{
-            Log.d("NavigationTypeSafe", "Navigated to doctorMainScreen")
-            DoctorPatientListScreen(
-                sharedViewModel = sharedViewModel,
-                onPatientClicked = { patient ->
-                    // Navigate to the detailed patient page
-                    navController.navigate("patientDetails/${patient.id}")
-                }
-        )}
 
-        /**
-         * composable("doctorPatientList") {
-         *         DoctorPatientListScreen(
-         *             sharedViewModel = sharedViewModel,
-         *             onPatientClicked = { patient ->
-         *                 navController.navigate("patientDetails/${patient.id}")
-         *             }
-         *         )
-         *     }
-         *     composable(
-         *         route = "patientDetails/{patientId}",
-         *         arguments = listOf(navArgument("patientId") { type = NavType.StringType })
-         *     ) { backStackEntry ->
-         *         val patientId = backStackEntry.arguments?.getString("patientId") ?: ""
-         *         PatientDetailsScreen(
-         *             patientId = patientId,
-         *             sharedViewModel = sharedViewModel
-         *         )
-         *     }
-         *
-         * */
+
     }
 
     fun NavGraphBuilder.patientGraph(navController: NavHostController) {
@@ -191,12 +196,15 @@ fun NavigationTypeSafe() {
                             )
                         }
                     }
+
+                    else -> {}
                 }
 
 
             }
         }
     }
+
 
     NavHost(navController = navController, startDestination = SubGraph.Auth) {
         authGraph(navController)
