@@ -1,5 +1,6 @@
 package com.example.ParkinsonApp.Navigation.BottomNavigation
 
+
 import com.example.ParkinsonApp.Navigation.NavRoute
 import com.example.ParkinsonApp.R
 import kotlinx.serialization.Serializable

@@ -21,30 +21,32 @@ import com.example.ParkinsonApp.Firebase.FirebaseRepository
 import com.example.ParkinsonApp.Navigation.BottomNavigation.BottomNavItem
 import com.example.ParkinsonApp.Navigation.BottomNavigation.BottomNavigationBar
 import com.example.ParkinsonApp.R
-import com.example.ParkinsonApp.Screens.Doctor.DoctorMainScreen
 import com.example.ParkinsonApp.Screens.Authentication.LoginPage
-import com.example.ParkinsonApp.Screens.Patient.PatientMedicationScreen
-import com.example.ParkinsonApp.Screens.Patient.PatientMainScreen
-import com.example.ParkinsonApp.Screens.Patient.PatientProfileScreen
 import com.example.ParkinsonApp.Screens.Authentication.SignUpPage
 import com.example.ParkinsonApp.Screens.Authentication.WelcomeScreen
+import com.example.ParkinsonApp.Screens.Doctor.DoctorMainScreen
 import com.example.ParkinsonApp.Screens.Doctor.DoctorPatientListScreen
 import com.example.ParkinsonApp.Screens.Doctor.DoctorProfileScreen
 import com.example.ParkinsonApp.Screens.Doctor.PatientDetailsScreen
+import com.example.ParkinsonApp.Screens.Patient.PatientMainScreen
+import com.example.ParkinsonApp.Screens.Patient.PatientMedicationScreen
+import com.example.ParkinsonApp.Screens.Patient.PatientProfileScreen
 
 @Composable
 fun NavigationTypeSafe() {
     val navController = rememberNavController()
     val firebaseRepository = FirebaseRepository()
-    val loginViewModel: LoginViewModel = viewModel(factory = GenericViewModelFactory { LoginViewModel(firebaseRepository) })
-    val sharedViewModel: SharedViewModel = viewModel(factory = GenericViewModelFactory { SharedViewModel(firebaseRepository) })
+    val loginViewModel: LoginViewModel =
+        viewModel(factory = GenericViewModelFactory { LoginViewModel(firebaseRepository) })
+    val sharedViewModel: SharedViewModel =
+        viewModel(factory = GenericViewModelFactory { SharedViewModel(firebaseRepository) })
 
     Log.d("NavigationTypeSafe", "Navigation initialized.")
 
-    fun NavGraphBuilder.authGraph(navController: NavHostController){
+    fun NavGraphBuilder.authGraph(navController: NavHostController) {
         navigation<SubGraph.Auth>(
             startDestination = NavRoute.Welcome
-        ){
+        ) {
 
             composable<NavRoute.Welcome> {
                 Log.d("NavigationTypeSafe", "Navigated to Welcome screen.")
@@ -76,7 +78,12 @@ fun NavigationTypeSafe() {
 
             composable<NavRoute.SignUp> {
                 val user = it.toRoute<NavRoute.SignUp>().userType
-                val signupViewModel: SignUpViewModel = viewModel(factory = GenericViewModelFactory { SignUpViewModel(firebaseRepository, user) })
+                val signupViewModel: SignUpViewModel = viewModel(factory = GenericViewModelFactory {
+                    SignUpViewModel(
+                        firebaseRepository,
+                        user
+                    )
+                })
                 Log.d("NavigationTypeSafe", "Navigated to SignUp screen for user: $user")
                 SignUpPage(
                     signupViewModel,
@@ -89,7 +96,10 @@ fun NavigationTypeSafe() {
                         }
                     },
                     onLoginClick = {
-                        Log.d("NavigationTypeSafe", "Navigating back to Login screen for user: $user")
+                        Log.d(
+                            "NavigationTypeSafe",
+                            "Navigating back to Login screen for user: $user"
+                        )
                         when (user) {
                             "doctor" -> navController.navigate(NavRoute.DoctorMain)
                             "patient" -> navController.navigate(NavRoute.PatientMain)
@@ -102,12 +112,10 @@ fun NavigationTypeSafe() {
         }
     }
 
-    fun NavGraphBuilder.doctorGraph(navController: NavHostController){
-
+    fun NavGraphBuilder.doctorGraph(navController: NavHostController) {
         navigation<SubGraph.DoctorDashboard>(
             startDestination = NavRoute.DoctorMain
-        ){
-
+        ) {
             composable<NavRoute.DoctorMain> {
                 Log.d("NavigationTypeSafe", "Navigated to doctorMainScreen")
 
@@ -134,18 +142,18 @@ fun NavigationTypeSafe() {
                 ) { innerPadding ->
                     DoctorMainScreen(
                         sharedViewModel = sharedViewModel,
-                        onAddPatientClick= { navController.navigate(NavRoute.DoctorPatients)},
+                        onAddPatientClick = { navController.navigate(NavRoute.DoctorPatients) },
                         onYourPatientsClick = { navController.navigate(NavRoute.DoctorPatients) },
                         onYourProfileClick = { navController.navigate(NavRoute.DoctorProfile) },
                         onRecentActionClicked = { patientId ->
                             navController.navigate("patientDetails/${patientId}")
                         },
                         paddingValues = innerPadding
-                        )
+                    )
                 }
             }
 
-            composable<NavRoute.DoctorPatients>{
+            composable<NavRoute.DoctorPatients> {
 
                 val currentRoute = NavRoute.DoctorMain
                 Scaffold(
@@ -174,7 +182,7 @@ fun NavigationTypeSafe() {
                         innerPadding
                     )
                 }
-                }
+            }
             composable<NavRoute.DoctorProfile> {
 
                 val currentRoute = NavRoute.DoctorMain
@@ -198,7 +206,7 @@ fun NavigationTypeSafe() {
                     Log.d("NavigationTypeSafe", "Navigated to doctorProfileScreen")
                     DoctorProfileScreen(innerPadding)
                 }
-                 }
+            }
 
             composable<NavRoute.PatientDetails> {
                 PatientDetailsScreen(
@@ -206,37 +214,6 @@ fun NavigationTypeSafe() {
                     sharedViewModel = sharedViewModel
                 )
 
-            }
-        }
-
-
-
-    }
-    fun NavGraphBuilder.bottomNavComposable(
-        route: NavRoute,
-        items: List<BottomNavItem>,
-        navController: NavHostController,
-        content: @Composable (paddingValues: PaddingValues) -> Unit
-    ) {
-        composable(route.toString()) {
-            Scaffold(
-                bottomBar = {
-                    BottomNavigationBar(
-                        items = items,
-                        currentRoute = route,
-                        onItemClicked = { navRoute ->
-                            navController.navigate(navRoute.toString()) {
-                                popUpTo(navController.graph.findStartDestination()) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    )
-                }
-            ) { innerPadding ->
-                content(innerPadding)
             }
         }
     }
@@ -247,7 +224,7 @@ fun NavigationTypeSafe() {
             startDestination = NavRoute.PatientMain,
         ) {
 
-            bottomNavComposable(
+            bottomNavComposable<NavRoute.PatientMain>(
                 route = NavRoute.PatientMain,
                 items = BottomNavItem.patientItems,
                 navController = navController
@@ -261,7 +238,7 @@ fun NavigationTypeSafe() {
                 )
             }
 
-            bottomNavComposable(
+            bottomNavComposable<NavRoute.PatientMedication>(
                 route = NavRoute.PatientMedication,
                 items = BottomNavItem.patientItems,
                 navController = navController
@@ -277,16 +254,25 @@ fun NavigationTypeSafe() {
                         Medication("Custom10", "10mg", R.drawable.medication_24px)
                     ),
                     schedule = listOf(
-                        ScheduleEntry("07:00", listOf(Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px))),
-                        ScheduleEntry("10:00", listOf(Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px))),
-                        ScheduleEntry("16:00", listOf(Medication("Ibuprofen", "50mg", R.drawable.medication_24px)))
+                        ScheduleEntry(
+                            "07:00",
+                            listOf(Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px))
+                        ),
+                        ScheduleEntry(
+                            "10:00",
+                            listOf(Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px))
+                        ),
+                        ScheduleEntry(
+                            "16:00",
+                            listOf(Medication("Ibuprofen", "50mg", R.drawable.medication_24px))
+                        )
                     ),
                     onShareClick = { navController.navigate(NavRoute.Welcome) },
                     innerPadding
                 )
             }
 
-            bottomNavComposable(
+            bottomNavComposable<NavRoute.PatientProfile>(
                 route = NavRoute.PatientProfile,
                 items = BottomNavItem.patientItems,
                 navController = navController
@@ -298,22 +284,41 @@ fun NavigationTypeSafe() {
                 )
             }
 
-                }
-
-
-            }
-
-
-
+        }
+    }
 
     NavHost(navController = navController, startDestination = SubGraph.Auth) {
         authGraph(navController)
         doctorGraph(navController)
         patientGraph(navController)
     }
+}
 
-
-
-
-
+inline fun <reified T : NavRoute> NavGraphBuilder.bottomNavComposable(
+    route: NavRoute,
+    items: List<BottomNavItem>,
+    navController: NavHostController,
+    crossinline content: @Composable (paddingValues: PaddingValues) -> Unit
+) {
+    composable<T> {
+        Scaffold(
+            bottomBar = {
+                BottomNavigationBar(
+                    items = items,
+                    currentRoute = route,
+                    onItemClicked = { navRoute ->
+                        navController.navigate(navRoute.toString()) {
+                            popUpTo(navController.graph.findStartDestination()) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
+            }
+        ) { innerPadding ->
+            content(innerPadding)
+        }
+    }
 }
