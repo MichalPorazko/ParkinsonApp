@@ -2,9 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.kotlin.serialization)
     id("kotlin-kapt")
     id("com.google.gms.google-services")
+    id ("org.jetbrains.kotlin.plugin.serialization")
 
 }
 
@@ -87,6 +87,6 @@ dependencies {
     // Firebase Firestore
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
 }
