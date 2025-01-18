@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.ParkinsonApp.DataTypes.Medication
 import com.example.ParkinsonApp.DataTypes.MedicationCard
+import com.example.ParkinsonApp.DataTypes.MedicationTest
 import com.example.ParkinsonApp.DataTypes.ScheduleEntry
 import com.example.ParkinsonApp.Firebase.FirebaseRepository
 import com.example.ParkinsonApp.Navigation.NavRoute
@@ -36,7 +37,7 @@ import com.example.ParkinsonApp.R
 fun PatientMedicationScreen(patientName: String,
                             yearBorn: Int,
                             yearDiagnosed: Int,
-                            medications: List<Medication>,
+                            medications: List<MedicationTest>,
                             schedule: List<ScheduleEntry>,
                             onShareClick: () -> Unit,
                             paddingValues: PaddingValues
@@ -121,7 +122,7 @@ fun PatientMedicationScreen(patientName: String,
     }
 
     @Composable
-    fun MedicationItem(medication: Medication, paddingValues: PaddingValues) {
+    fun MedicationItem(medication: MedicationTest, paddingValues: PaddingValues) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -178,10 +179,10 @@ fun PatientMedicationScreen(patientName: String,
     @Composable
     fun MedicationCardPreview() {
         val medications = listOf(
-            Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px),
-            Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px),
-            Medication("Ibuprofen", "50mg", R.drawable.medication_24px),
-            Medication("Custom10", "10mg", R.drawable.medication_24px)
+            MedicationTest("Madopar", "50mg/12.5mg", R.drawable.medication_24px),
+            MedicationTest("Stalevo", "75mg/200mg", R.drawable.medication_24px),
+            MedicationTest("Ibuprofen", "50mg", R.drawable.medication_24px),
+            MedicationTest("Custom10", "10mg", R.drawable.medication_24px)
         )
         val schedule = listOf(
             ScheduleEntry("07:00", listOf(medications[0], medications[1])),
@@ -209,15 +210,15 @@ fun PreviewPatientMedicationScreen() {
         yearBorn = 1983,
         yearDiagnosed = 2005,
         medications = listOf(
-            Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px),
-            Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px),
-            Medication("Ibuprofen", "50mg", R.drawable.medication_24px),
-            Medication("Custom10", "10mg", R.drawable.medication_24px)
+            MedicationTest("Madopar", "50mg/12.5mg", R.drawable.medication_24px),
+            MedicationTest("Stalevo", "75mg/200mg", R.drawable.medication_24px),
+            MedicationTest("Ibuprofen", "50mg", R.drawable.medication_24px),
+            MedicationTest("Custom10", "10mg", R.drawable.medication_24px)
         ),
         schedule = listOf(
-            ScheduleEntry("07:00", listOf(Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px))),
-            ScheduleEntry("10:00", listOf(Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px))),
-            ScheduleEntry("16:00", listOf(Medication("Ibuprofen", "50mg", R.drawable.medication_24px)))
+            ScheduleEntry("07:00", listOf(MedicationTest("Madopar", "50mg/12.5mg", R.drawable.medication_24px))),
+            ScheduleEntry("10:00", listOf(MedicationTest("Stalevo", "75mg/200mg", R.drawable.medication_24px))),
+            ScheduleEntry("16:00", listOf(MedicationTest("Ibuprofen", "50mg", R.drawable.medication_24px)))
         ),
         onShareClick = { /* Handle share action */ },
         paddingValues = PaddingValues(16.dp)

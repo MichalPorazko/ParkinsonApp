@@ -16,6 +16,7 @@ import androidx.navigation.toRoute
 import com.example.ParkinsonApp.Authentication.LoginViewModel
 import com.example.ParkinsonApp.Authentication.SignUpViewModel
 import com.example.ParkinsonApp.DataTypes.Medication
+import com.example.ParkinsonApp.DataTypes.MedicationTest
 import com.example.ParkinsonApp.DataTypes.ScheduleEntry
 import com.example.ParkinsonApp.Firebase.FirebaseRepository
 import com.example.ParkinsonApp.Navigation.BottomNavigation.BottomNavItem
@@ -248,23 +249,23 @@ fun NavigationTypeSafe() {
                     yearBorn = 1983,
                     yearDiagnosed = 2005,
                     medications = listOf(
-                        Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px),
-                        Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px),
-                        Medication("Ibuprofen", "50mg", R.drawable.medication_24px),
-                        Medication("Custom10", "10mg", R.drawable.medication_24px)
+                        MedicationTest("Madopar", "50mg/12.5mg", R.drawable.medication_24px),
+                        MedicationTest("Stalevo", "75mg/200mg", R.drawable.medication_24px),
+                        MedicationTest("Ibuprofen", "50mg", R.drawable.medication_24px),
+                        MedicationTest("Custom10", "10mg", R.drawable.medication_24px)
                     ),
                     schedule = listOf(
                         ScheduleEntry(
                             "07:00",
-                            listOf(Medication("Madopar", "50mg/12.5mg", R.drawable.medication_24px))
+                            listOf(MedicationTest("Madopar", "50mg/12.5mg", R.drawable.medication_24px))
                         ),
                         ScheduleEntry(
                             "10:00",
-                            listOf(Medication("Stalevo", "75mg/200mg", R.drawable.medication_24px))
+                            listOf(MedicationTest("Stalevo", "75mg/200mg", R.drawable.medication_24px))
                         ),
                         ScheduleEntry(
                             "16:00",
-                            listOf(Medication("Ibuprofen", "50mg", R.drawable.medication_24px))
+                            listOf(MedicationTest("Ibuprofen", "50mg", R.drawable.medication_24px))
                         )
                     ),
                     onShareClick = { navController.navigate(NavRoute.Welcome) },

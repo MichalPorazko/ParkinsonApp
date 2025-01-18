@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.ParkinsonApp.DataTypes.Patient
+import com.example.ParkinsonApp.DataTypes.UserType
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.firestore.FirebaseFirestore
@@ -57,44 +58,29 @@ class FirebaseRepository {
 
                     when(userType){
                         "doctor" -> {
-                            val newDoctorDoc = mapOf(
-                            "firstName" to additionalInfo["firstName"],
-                            "lastName" to additionalInfo["lastName"],
-                            "email" to email,
-                            "userType" to "doctor",
-                            "patients" to emptyList<String>()
-                        )
-                        db.collection("doctors").document(uid!!).set(newDoctorDoc)
+                            val newDoctor = UserType.DoctorUser(email, password, additionalInfo["firstName"]!!, additionalInfo["lastName"]!!)
+                            db.collection(userType).document(uid!!).set(newDoctor).addOnSuccessListener {
+                                Log.d("FirebaseRepository", "User info successfully written to Firestore")
+                                _authState.value = AuthState.Authenticated
+                            }
+                                .addOnFailureListener { e ->
+                                    Log.e("FirebaseRepository", "Error writing user info to Firestore", e)
+                                    _authState.value = AuthState.Error(e.message ?: "Failed to save user info")
+                                }
                         }
 
                         "patient" -> {
-                            val newPatientDoc = mapOf(
-                                "firstName" to additionalInfo["firstName"],
-                                "lastName" to additionalInfo["lastName"],
-                                "email" to email,
-                                "userType" to "patient",
-                            )
-                            db.collection("patients").document(uid!!).set(newPatientDoc)
+                            val newPatient = UserType.PatientUser(email, password, additionalInfo["firstName"]!!, additionalInfo["lastName"]!!)
+                            db.collection(userType).document(uid!!).set(newPatient).addOnSuccessListener {
+                                Log.d("FirebaseRepository", "User info successfully written to Firestore")
+                                _authState.value = AuthState.Authenticated
+                            }
+                                .addOnFailureListener { e ->
+                                    Log.e("FirebaseRepository", "Error writing user info to Firestore", e)
+                                    _authState.value = AuthState.Error(e.message ?: "Failed to save user info")
+                                }
                         }
                     }
-
-                    val userInfo = hashMapOf(
-                        "email" to email,
-                        "password" to password,
-                        "userType" to userType
-                    )
-                    userInfo.putAll(additionalInfo)
-                    Log.d("FirebaseRepository", "User Info to save: $userInfo")
-
-                    db.collection(userType).document(uid!!).set(userInfo)
-                        .addOnSuccessListener {
-                            Log.d("FirebaseRepository", "User info successfully written to Firestore")
-                            _authState.value = AuthState.Authenticated
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("FirebaseRepository", "Error writing user info to Firestore", e)
-                            _authState.value = AuthState.Error(e.message ?: "Failed to save user info")
-                        }
                 } else {
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
                     if (task.exception is FirebaseAuthWeakPasswordException) {
@@ -133,6 +119,23 @@ class FirebaseRepository {
         )
     }
 
+    fun getPatientData(uid: String, onComplete: (UserType?) -> Unit) {
+        db.collection("users").addSnapshotListener{ snapshot, e ->
+            if (e != null) {
+                Log.w(TAG, "Listen failed.", e)
+                return@addSnapshotListener
+            }
+            if (snapshot != null) {
+                for (doc in snapshot) {
+                    Log.d(TAG, "${doc.id} => ${doc.data}")
+                }
+            } else {
+                Log.d(TAG, "Current data: null")
+            }
+
+        }
+    }
+
     suspend fun getPatientById(patientId: String): Patient? {
         // Implement logic to fetch a patient by ID from Firebase
         // Return the Patient object or null if not found
@@ -145,4 +148,41 @@ class FirebaseRepository {
         object Loading : AuthState()
         data class Error(val message: String) : AuthState()
     }
+
+   /* fun getUserData(uid: String, onComplete: (UserType?) -> Unit) {
+        db.collection("users").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val userTypeString = document.getString("userType")
+                    val email = document.getString("email") ?: ""
+                    val password = "" // You typically won't retrieve passwords
+                    val firstName = document.getString("firstName") ?: ""
+                    val lastName = document.getString("lastName") ?: ""
+
+                    val userType = when (userTypeString) {
+                        "patient" -> {
+                            val patientDataMap = document.get("patientData") as? Map<*, *>
+                            val patientData = parsePatientData(patientDataMap)
+                            UserType.PatientUser(email, password, firstName, lastName, patientData)
+                        }
+                        "doctor" -> {
+                            val doctorDataMap = document.get("doctorData") as? Map<*, *>
+                            val doctorData = parseDoctorData(doctorDataMap)
+                            UserType.DoctorUser(email, password, firstName, lastName, doctorData)
+                        }
+                        else -> null
+                    }
+                    onComplete(userType)
+                } else {
+                    onComplete(null)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseRepository", "Error retrieving user data", e)
+                onComplete(null)
+            }
+    }*/
 }
+
+
