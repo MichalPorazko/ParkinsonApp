@@ -87,6 +87,8 @@ dependencies {
     // Firebase Firestore
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.navigation.compose)
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation(libs.kotlinx.serialization.json.v180)
+
+
 
 }

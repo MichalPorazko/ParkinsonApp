@@ -13,17 +13,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.ParkinsonApp.DataTypes.Patient
+import com.example.ParkinsonApp.DataTypes.PatientData
+import com.example.ParkinsonApp.DataTypes.PatientDataWithId
 import com.example.ParkinsonApp.Firebase.FirebaseRepository
-import com.example.ParkinsonApp.Navigation.SharedViewModel
+import com.example.ParkinsonApp.ViewModels.DoctorViewModel
 
 @Composable
-fun DoctorPatientListScreen(
-    sharedViewModel: SharedViewModel,
-    onPatientClicked: (Patient) -> Unit,
+fun DoctorPatientsListScreen(
+    doctorViewModel: DoctorViewModel,
+    onPatientClicked: (String) -> Unit,
     paddingValues: PaddingValues
 ) {
-    val patients by sharedViewModel.patients.collectAsState(initial = emptyList())
+    val patients by doctorViewModel.patients.collectAsState(initial = emptyList())
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -33,7 +34,7 @@ fun DoctorPatientListScreen(
         items(patients) { patient ->
             ExpandablePatientCard(
                 patient = patient,
-                onPatientClicked = { onPatientClicked(patient) }
+                onPatientClicked = { onPatientClicked(patient.id) }
             )
         }
     }
@@ -42,7 +43,7 @@ fun DoctorPatientListScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpandablePatientCard(
-    patient: Patient,
+    patient: PatientDataWithId,
     onPatientClicked: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -62,7 +63,7 @@ fun ExpandablePatientCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = patient.name,
+                    text = patient.data.firstName,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f)
                 )
@@ -73,14 +74,6 @@ fun ExpandablePatientCard(
                     )
                 }
             }
-            // Expandable Content
-            if (expanded) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Age: ${patient.age}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
         }
     }
 }
@@ -88,9 +81,8 @@ fun ExpandablePatientCard(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewDoctorPatientListScreen() {
-    val sharedViewModel = SharedViewModel(firebaseRepository = FirebaseRepository())
-    DoctorPatientListScreen(
-        sharedViewModel = sharedViewModel,
+    DoctorPatientsListScreen(
+        DoctorViewModel(firebaseRepository = FirebaseRepository()),
         onPatientClicked = { /* Handle patient selection */ },
         paddingValues = PaddingValues(16.dp)
     )

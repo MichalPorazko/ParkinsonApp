@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.ParkinsonApp.Authentication.SignUpUIEvent
-import com.example.ParkinsonApp.Authentication.SignUpViewModel
+import com.example.ParkinsonApp.ViewModels.SignUpViewModel
 import com.example.ParkinsonApp.UIComponents.ButtonComponent
 import com.example.ParkinsonApp.UIComponents.ClickableLoginTextComponent
 import com.example.ParkinsonApp.UIComponents.DividerTextComponent

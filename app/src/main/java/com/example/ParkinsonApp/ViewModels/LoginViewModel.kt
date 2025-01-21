@@ -1,9 +1,12 @@
-package com.example.ParkinsonApp.Authentication
+package com.example.ParkinsonApp.ViewModels
 
 import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.example.ParkinsonApp.Authentication.LoginUIEvent
+import com.example.ParkinsonApp.Authentication.LoginUIStatus
+import com.example.ParkinsonApp.Authentication.ValidationRules
 import com.example.ParkinsonApp.Firebase.FirebaseRepository
 
 class LoginViewModel(private val firebaseRepository: FirebaseRepository): ViewModel() {

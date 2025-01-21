@@ -1,8 +1,9 @@
 package com.example.ParkinsonApp.Screens.Patient
 
+import EmotionUI
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
-import com.example.ParkinsonApp.Navigation.SharedViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,9 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
@@ -24,9 +22,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
@@ -36,15 +34,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.ParkinsonApp.Firebase.FirebaseRepository
 import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import com.example.ParkinsonApp.DataTypes.EmotionState
+import com.example.ParkinsonApp.DataTypes.MedicationUI
+import com.example.ParkinsonApp.ViewModels.PatientViewModel
+import emotionsList
 
 @Composable
 fun PatientMainScreen(
-    sharedViewModel: SharedViewModel,
+    patientViewModel: PatientViewModel,
     onMedicationBoxClicked: () -> Unit,
     onMealBoxClicked: () -> Unit,
     onLogout: () -> Unit,
     paddingValues: PaddingValues
 ) {
+
+    val patientData by patientViewModel.patientData.collectAsState()
+
+    val patientName = patientData?.lastName ?: ("" + patientData?.firstName) ?: ""
+    val nextMedicationDetail by patientViewModel.nextMedicationDetail.collectAsState()
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -52,87 +62,40 @@ fun PatientMainScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Patient's Name
-        PatientGreetingSection(patientName = "John Doe")
+        PatientGreetingSection(patientName)
 
         // State Pager
-        val stateList = listOf("Anxiety", "Concentration", "Mood")
         PatientStatePager(
-            stateList = stateList,
-            onFaceClicked = { state, faceIndex ->
-                sharedViewModel.onStateFaceClicked(state, faceIndex)
+            emotionsList,
+            onFaceClicked = { emotionName, emotionState ->
+                patientViewModel.onStateFaceClicked(emotionName, emotionState)
             }
         )
 
         // Medication Box
         NextMedicationBox(
-            nextMedicationTime = "08:00 AM",
-            onMedicationBoxClicked = onMedicationBoxClicked
+            nextMedicationDetail,
+            onMedicationBoxClicked
         )
 
-        // Meal Box
-        NextMealBox(
-            nextMealTime = "12:00 PM",
-            onMealBoxClicked = onMealBoxClicked,
-            mealStatus = true,
-            paddingValues
-        )
 
         // Water Intake
         WaterIntakeBox(
-            waterIntake = 5,
+            waterIntake = 0,
             onAddGlass = {
-                sharedViewModel.incrementWaterIntake()
+                patientViewModel.incrementWaterIntake()
             },
             onRemoveGlass = {
-                sharedViewModel.decrementWaterIntake()
+                patientViewModel.decrementWaterIntake()
             }
         )
     }
 }
 
-@Composable
-fun NextMealBox(
-    nextMealTime: String,
-    onMealBoxClicked: () -> Unit,
-    mealStatus: Boolean,
-    paddingValues: PaddingValues
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(paddingValues )
-            .clickable { onMealBoxClicked() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.AddCircle,
-                contentDescription = "Meal Status Icon",
-                tint = if (mealStatus) Color.Green else Color.Red,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Column {
-                Text(
-                    text = "Next Meal Time",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = nextMealTime,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun NextMedicationBox(
-    nextMedicationTime: String,
+    medicationDetail: MedicationUI?,
     onMedicationBoxClicked: () -> Unit
 ) {
     Card(
@@ -142,37 +105,54 @@ fun NextMedicationBox(
             .clickable { onMedicationBoxClicked() },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Call,
-                contentDescription = "Medication Icon",
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Column {
-                Text(
-                    text = "Next Medication Time",
-                    style = MaterialTheme.typography.titleMedium
+        if (medicationDetail != null) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Call, // Change to appropriate icon
+                    contentDescription = "Medication Icon",
+                    modifier = Modifier.size(24.dp)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = nextMedicationTime,
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(
+                        text = "Next Medication",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Name: ${medicationDetail.name}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = "Dosage: ${medicationDetail.dosage}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = "Time: ${medicationDetail.time}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
+        } else {
+            // Handle case where there is no upcoming medication
+            Text(
+                text = "No Medications Scheduled",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(16.dp)
+            )
         }
     }
 }
 
 @Composable
 fun PatientStatePager(
-    stateList: List<String>,
-    onFaceClicked: (state: String, faceIndex: Int) -> Unit
+    emotions: List<EmotionUI>,
+    onFaceClicked: (emotionName: String, emotionState: EmotionState) -> Unit
 ) {
-    val pagerState = rememberPagerState { stateList.size }
+    val pagerState = rememberPagerState { emotions.size }
     val coroutineScope = rememberCoroutineScope()
 
     HorizontalPager(
@@ -182,14 +162,13 @@ fun PatientStatePager(
             .fillMaxWidth()
             .height(250.dp)
     ) { page ->
-        val currentState = stateList[page]
+        val currentEmotion = emotions[page]
         StatePage(
-            stateName = currentState,
-            onFaceSelected = { faceIndex ->
-                onFaceClicked(currentState, faceIndex)
-                // Move to the next page using coroutineScope
+            currentEmotion,
+            onFaceSelected = { emotionName, emotionState ->
+                onFaceClicked(currentEmotion.name, emotionState)
                 coroutineScope.launch {
-                    val nextPage = (pagerState.currentPage + 1) % stateList.size
+                    val nextPage = (pagerState.currentPage + 1) % emotions.size
                     pagerState.animateScrollToPage(nextPage)
                 }
             }
@@ -201,8 +180,8 @@ fun PatientStatePager(
 
 @Composable
 fun StatePage(
-    stateName: String,
-    onFaceSelected: (faceIndex: Int) -> Unit
+    emotionUI: EmotionUI,
+    onFaceSelected: (emotionName: String, emotionState: EmotionState) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -211,21 +190,19 @@ fun StatePage(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "How is your $stateName today?",
+            text = "How is your ${emotionUI.name} today?",
             style = MaterialTheme.typography.titleLarge
         )
         Spacer(modifier = Modifier.height(16.dp))
-        // Faces representation (Happy, Neutral, Sad)
-        val faces = listOf(Icons.Default.Face, Icons.Default.Face, Icons.Default.Face)
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier.fillMaxWidth()
         ) {
-            faces.forEachIndexed { index, icon ->
-                IconButton(onClick = { onFaceSelected(index) }) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
+            emotionUI.faces.forEach { face ->
+                IconButton(onClick = { onFaceSelected( emotionUI.name, face.emotionState) }) {
+                    Image(
+                        painter = painterResource(id = face.imageResId),
+                        contentDescription = face.emotionState.name,
                         modifier = Modifier.size(48.dp)
                     )
                 }
@@ -294,9 +271,9 @@ fun WaterIntakeBox(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewPatientMainScreen() {
-    val sharedViewModel = SharedViewModel(firebaseRepository = FirebaseRepository())
+    val sharedViewModel = PatientViewModel(firebaseRepository = FirebaseRepository())
     PatientMainScreen(
-        sharedViewModel = sharedViewModel,
+        patientViewModel = sharedViewModel,
         onMedicationBoxClicked = {},
     onMealBoxClicked = {},
         onLogout = { /* Handle logout action */ },

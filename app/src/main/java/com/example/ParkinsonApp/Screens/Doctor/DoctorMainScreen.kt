@@ -7,16 +7,11 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -24,34 +19,38 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ParkinsonApp.DataTypes.PatientAction
 import com.example.ParkinsonApp.Firebase.FirebaseRepository
-import com.example.ParkinsonApp.Navigation.SharedViewModel
 import com.example.ParkinsonApp.R
+import com.example.ParkinsonApp.ViewModels.DoctorViewModel
 
 @Composable
 fun DoctorMainScreen(
-    sharedViewModel: SharedViewModel,
+    doctorViewModel: DoctorViewModel,
     onAddPatientClick: () -> Unit,
     onYourPatientsClick: () -> Unit,
     onYourProfileClick: () -> Unit,
     onRecentActionClicked: (String) -> Unit,
     paddingValues: PaddingValues
 ) {
-    val recentActions = remember { getRecentPatientActions() }
-    val pagerState = rememberPagerState { recentActions.size }
+    val recentActions by doctorViewModel.recentPatientActions.collectAsState()
+    val pagerState = rememberPagerState()
+
+    // Update pagerState page count when recentActions size changes
+    LaunchedEffect(recentActions.size) {
+        pagerState.setPageCount(recentActions.size)
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(paddingValues)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         // Swiper for recent patient actions
         RecentActionsPager(
             recentActions = recentActions,
             pagerState = pagerState,
-            onRecentActionClicked = onRecentActionClicked,
-            paddingValues = paddingValues
+            onRecentActionClicked = onRecentActionClicked
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -69,39 +68,45 @@ fun DoctorMainScreen(
 fun RecentActionsPager(
     recentActions: List<PatientAction>,
     pagerState: PagerState,
-    onRecentActionClicked: (String) -> Unit,
-    paddingValues: PaddingValues
+    onRecentActionClicked: (String) -> Unit
 ) {
-    HorizontalPager(
-        state = pagerState,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp)
-    ) { page ->
-        if (page < recentActions.size) {
-            val action = recentActions[page]
-            RecentActionCard(
-                action = action,
-                onRecentActionClicked = onRecentActionClicked,
-                paddingValues
-            )
+    if (recentActions.isNotEmpty()) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+        ) { page ->
+            if (page < recentActions.size) {
+                val action = recentActions[page]
+                RecentActionCard(
+                    action = action,
+                    onRecentActionClicked = onRecentActionClicked
+                )
+            }
         }
+    } else {
+        // Display a message when there are no recent actions
+        Text(
+            text = "No recent patient actions.",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }
 
 @Composable
 fun RecentActionCard(
     action: PatientAction,
-    onRecentActionClicked: (String) -> Unit,
-    paddingValues: PaddingValues
+    onRecentActionClicked: (String) -> Unit
 ) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         modifier = Modifier
-            .padding(paddingValues)
+            .padding(8.dp)
             .fillMaxWidth()
-            .clickable { 
-                onRecentActionClicked(action.patientId) 
+            .clickable {
+                onRecentActionClicked(action.patientId)
             }
     ) {
         Column(
@@ -109,12 +114,14 @@ fun RecentActionCard(
             modifier = Modifier.padding(16.dp)
         ) {
             // Patient's photo
+            // Assuming you have patient images stored with resource IDs or URLs
+            // For demonstration, using a placeholder image
             Image(
-                painter = painterResource(id = action.patientImageRes),
+                painter = painterResource(id = R.drawable.patient_placeholder),
                 contentDescription = "Patient Photo",
                 modifier = Modifier
                     .size(100.dp)
-                    .clip(RoundedCornerShape(50.dp)),
+                    .clip(MaterialTheme.shapes.medium),
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -124,21 +131,25 @@ fun RecentActionCard(
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
-            // Action description with icon
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(id = action.actionIconRes),
-                    contentDescription = "Action Icon",
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = action.actionDescription,
-                    style = MaterialTheme.typography.bodyLarge
-                )
+            // Action description
+            Text(
+                text = action.actionDescription,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            // Timestamp
+            val formattedTime = remember(action.timestamp) {
+                // Format the timestamp to a readable date/time string
+                // You can use SimpleDateFormat or DateTimeFormatter
+                // Placeholder implementation
+                "Time: ${action.timestamp}"
             }
+            Text(
+                text = formattedTime,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -157,21 +168,21 @@ fun ActionButtonsSection(
         // Button 1: Add a Patient
         ActionButton(
             text = "Add Patient",
-            iconResId = R.drawable.add_patient,
+            iconResId = R.drawable.add_patient, // Replace with your actual icon resource ID
             onClick = onAddPatientClick
         )
 
         // Button 2: Your Patients
         ActionButton(
             text = "Your Patients",
-            iconResId = R.drawable.patients,
+            iconResId = R.drawable.patients, // Replace with your actual icon resource ID
             onClick = onYourPatientsClick
         )
 
         // Button 3: Your Profile
         ActionButton(
             text = "Your Profile",
-            iconResId = R.drawable.doctor,
+            iconResId = R.drawable.doctor, // Replace with your actual icon resource ID
             onClick = onYourProfileClick
         )
     }
@@ -184,7 +195,7 @@ fun ActionButton(
     onClick: () -> Unit
 ) {
     Card(
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.medium,
         modifier = Modifier
             .size(100.dp)
             .clickable { onClick() },
@@ -213,34 +224,11 @@ fun ActionButton(
     }
 }
 
-fun getRecentPatientActions(): List<PatientAction> {
-    // Placeholder data; replace with actual data retrieval in your app
-    return listOf(
-        PatientAction(
-            patientFirstName = "Joe",
-            patientLastName = "Doe",
-            patientImageRes = R.drawable.add_patient, // Replace with actual image resource
-            actionDescription = "Added a glass of water",
-            actionIconRes = R.drawable.medication_24px, // Replace with actual icon resource,
-            patientId = "patientId1"
-        ),
-        PatientAction(
-            patientFirstName = "Jane",
-            patientLastName = "Smith",
-            patientImageRes = R.drawable.patient_list_24px,
-            actionDescription = "Confirmed medication intake",
-            actionIconRes = R.drawable.medication_24px,
-            patientId = "patientId2"
-        ),
-        // Add more actions as needed (up to 5 recent actions)
-    )
-}
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewDoctorMainScreen() {
     DoctorMainScreen(
-        sharedViewModel = SharedViewModel(firebaseRepository = FirebaseRepository()),
+        doctorViewModel = DoctorViewModel(firebaseRepository = FirebaseRepository()),
         onAddPatientClick = {},
         onYourPatientsClick = {},
         onYourProfileClick = {},

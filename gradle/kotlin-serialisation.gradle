@@ -1,0 +1,26 @@
+import org.jetbrains.kotlinx.serialization.gradle.SerializationGradleSubplugin
+
+buildscript {
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-serialization:2.1.0"
+    }
+}
+
+// can not apply plugin id in external gradle files. Known issue
+// https://github.com/gradle/gradle/issues/1262
+//
+// apply plugin: 'kotlinx-serialization'
+apply plugin: SerializationGradleSubplugin
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation libs.kotlinx.serialization.json.v121
+}

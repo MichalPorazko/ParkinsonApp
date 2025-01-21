@@ -8,15 +8,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ParkinsonApp.Firebase.FirebaseRepository
-import com.example.ParkinsonApp.Navigation.SharedViewModel
+import com.example.ParkinsonApp.ViewModels.DoctorViewModel
 
 @Composable
 fun PatientDetailsScreen(
     patientId: String,
-    sharedViewModel: SharedViewModel
+    doctorViewModel: DoctorViewModel
 ) {
     // The sharedViewModel fetches patient details from your FirebaseRepository
-    val patient by sharedViewModel.getPatientById(patientId).collectAsState(initial = null)
+    val patient by doctorViewModel.getPatientById(patientId).collectAsState()
 
     patient?.let {
         Column(
@@ -24,10 +24,8 @@ fun PatientDetailsScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text(text = it.name, style = MaterialTheme.typography.headlineMedium)
+            Text(text = it.data.firstName + " " + it.data.lastName , style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Age: ${it.age}", style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(16.dp))
             // Medication Status
             Text(text = "Medication Status:", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
@@ -48,9 +46,8 @@ fun PatientDetailsScreen(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewPatientDetailsScreen() {
-    val sharedViewModel = SharedViewModel(firebaseRepository = FirebaseRepository())
     PatientDetailsScreen(
         patientId = "patientId",
-        sharedViewModel = sharedViewModel
+        DoctorViewModel(firebaseRepository = FirebaseRepository())
     )
 }

@@ -2,34 +2,29 @@ package com.example.ParkinsonApp.DataTypes
 
 sealed class UserType {
     abstract val email: String
-    abstract val password: String
-    abstract val firstName: String
-    abstract val lastName: String
 
     data class PatientUser(
         override val email: String,
-        override val password: String,
-        override val firstName: String,
-        override val lastName: String,
         val patientData: PatientData = PatientData()
     ) : UserType()
 
     data class DoctorUser(
         override val email: String,
-        override val password: String,
-        override val firstName: String,
-        override val lastName: String,
         val doctorData: DoctorData = DoctorData()
     ) : UserType()
 }
 
 data class PatientData(
+    val firstName: String = "",
+    val lastName: String = "",
     var medications: MedicationSchedule = MedicationSchedule(),
     var waterIntake: Water = Water(),
     var emotions: List<Emotion> = emptyList()
 ){
     fun toMap(): Map<String, Any> {
         return mapOf(
+            "firstName" to firstName,
+            "lastName" to lastName,
             "medications" to medications.toMap(),
             "waterIntake" to waterIntake.toMap(),
             "emotions" to emotions.map { it.toMap() }
@@ -38,11 +33,15 @@ data class PatientData(
 }
 
 data class DoctorData(
+    val firstName: String = "",
+    val lastName: String = "",
     val pwzNumber: Int = 0,
     val patients: List<PatientData> = emptyList()  // List of patient IDs
 ){
     fun toMap(): Map<String, Any> {
         return mapOf(
+            "firstName" to firstName,
+            "lastName" to lastName,
             "pwzNumber" to pwzNumber,
             "patients" to patients.map { it.toMap() }
         )
@@ -112,3 +111,13 @@ data class Emotion(
 enum class EmotionState {
     VERY_SAD, SAD, NEUTRAL, GOOD, VERY_GOOD
 }
+
+data class PatientDataWithId(
+    val id: String,
+    val data: PatientData
+)
+
+data class DoctorDataWithId(
+    val id: String,
+    val data: DoctorData
+)
