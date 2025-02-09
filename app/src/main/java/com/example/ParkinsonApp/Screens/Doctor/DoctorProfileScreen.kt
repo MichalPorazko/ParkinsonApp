@@ -14,15 +14,15 @@ import com.example.ParkinsonApp.ViewModels.DoctorViewModel
 
 @Composable
 fun DoctorProfileScreen(
-    doctorViewModel: DoctorViewModel,
+    sharedViewModel: DoctorViewModel,
     paddingValues: PaddingValues,
     onLogout: () -> Unit
 ) {
-    val doctorData by doctorViewModel.doctorData.collectAsState()
+    val doctorData by sharedViewModel.doctorData.collectAsState()
+    val patients by sharedViewModel.patients.collectAsState()
 
     val doctorName = "${doctorData?.data?.firstName ?: ""} ${doctorData?.data?.lastName ?: ""}"
     val pwzNumber = doctorData?.data?.pwzNumber ?: ""
-    val patients = doctorData?.data?.patients ?: listOf()
 
     Column(
         modifier = Modifier
@@ -93,7 +93,7 @@ fun ProfileItem(label: String, value: String) {
 }
 
 @Composable
-fun PatientItem(patient: PatientData) {
+fun PatientItem(patient: PatientDataWithId) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -101,7 +101,7 @@ fun PatientItem(patient: PatientData) {
             .padding(12.dp)
     ) {
         Text(
-            text = "${patient.firstName} ${patient.lastName}",
+            text = "${patient.data.firstName} ${patient.data.lastName}",
             style = MaterialTheme.typography.bodyLarge
         )
         // Add more details if needed

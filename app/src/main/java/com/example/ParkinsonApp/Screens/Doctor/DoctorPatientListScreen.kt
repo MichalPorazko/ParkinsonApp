@@ -20,11 +20,11 @@ import com.example.ParkinsonApp.ViewModels.DoctorViewModel
 
 @Composable
 fun DoctorPatientsListScreen(
-    doctorViewModel: DoctorViewModel,
+    sharedViewModel: DoctorViewModel,
     onPatientClicked: (String) -> Unit,
     paddingValues: PaddingValues
 ) {
-    val patients by doctorViewModel.patients.collectAsState(initial = emptyList())
+    val patients by sharedViewModel.patients.collectAsState()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -76,14 +76,4 @@ fun ExpandablePatientCard(
             }
         }
     }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewDoctorPatientListScreen() {
-    DoctorPatientsListScreen(
-        DoctorViewModel(firebaseRepository = FirebaseRepository()),
-        onPatientClicked = { /* Handle patient selection */ },
-        paddingValues = PaddingValues(16.dp)
-    )
 }

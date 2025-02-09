@@ -24,20 +24,15 @@ import com.example.ParkinsonApp.ViewModels.DoctorViewModel
 
 @Composable
 fun DoctorMainScreen(
-    doctorViewModel: DoctorViewModel,
+    sharedViewModel: DoctorViewModel,
     onAddPatientClick: () -> Unit,
     onYourPatientsClick: () -> Unit,
     onYourProfileClick: () -> Unit,
     onRecentActionClicked: (String) -> Unit,
     paddingValues: PaddingValues
 ) {
-    val recentActions by doctorViewModel.recentPatientActions.collectAsState()
-    val pagerState = rememberPagerState()
 
-    // Update pagerState page count when recentActions size changes
-    LaunchedEffect(recentActions.size) {
-        pagerState.setPageCount(recentActions.size)
-    }
+
 
     Column(
         modifier = Modifier
@@ -46,14 +41,6 @@ fun DoctorMainScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Swiper for recent patient actions
-        RecentActionsPager(
-            recentActions = recentActions,
-            pagerState = pagerState,
-            onRecentActionClicked = onRecentActionClicked
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
 
         // Buttons
         ActionButtonsSection(
@@ -117,7 +104,7 @@ fun RecentActionCard(
             // Assuming you have patient images stored with resource IDs or URLs
             // For demonstration, using a placeholder image
             Image(
-                painter = painterResource(id = R.drawable.patient_placeholder),
+                painter = painterResource(id = R.drawable.doctor),
                 contentDescription = "Patient Photo",
                 modifier = Modifier
                     .size(100.dp)
@@ -224,17 +211,5 @@ fun ActionButton(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewDoctorMainScreen() {
-    DoctorMainScreen(
-        doctorViewModel = DoctorViewModel(firebaseRepository = FirebaseRepository()),
-        onAddPatientClick = {},
-        onYourPatientsClick = {},
-        onYourProfileClick = {},
-        onRecentActionClicked = {},
-        paddingValues = PaddingValues(0.dp)
-    )
-}
 
 

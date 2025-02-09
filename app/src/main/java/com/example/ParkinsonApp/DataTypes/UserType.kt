@@ -21,41 +21,19 @@ data class PatientData(
     var waterIntake: Water = Water(),
     var emotions: List<Emotion> = emptyList()
 ){
-    fun toMap(): Map<String, Any> {
-        return mapOf(
-            "firstName" to firstName,
-            "lastName" to lastName,
-            "medications" to medications.toMap(),
-            "waterIntake" to waterIntake.toMap(),
-            "emotions" to emotions.map { it.toMap() }
-        )
-    }
 }
 
 data class DoctorData(
     val firstName: String = "",
     val lastName: String = "",
     val pwzNumber: Int = 0,
-    val patients: List<PatientData> = emptyList()  // List of patient IDs
+    val patients: List<String> = emptyList()  // List of patient IDs
 ){
-    fun toMap(): Map<String, Any> {
-        return mapOf(
-            "firstName" to firstName,
-            "lastName" to lastName,
-            "pwzNumber" to pwzNumber,
-            "patients" to patients.map { it.toMap() }
-        )
-    }
 }
 
 data class MedicationSchedule(
     var medications: List<Medication> = emptyList()
 ){
-    fun toMap(): Map<String, Any> {
-        return mapOf(
-            "medications" to medications.map { it.toMap() }
-        )
-    }
 }
 
 data class Medication(
@@ -63,13 +41,6 @@ data class Medication(
     val dose: String,
     val times: List<Hour> = emptyList()
 ){
-    fun toMap(): Map<String, Any> {
-        return mapOf(
-            "name" to name,
-            "dose" to dose,
-            "times" to times.map { it.toMap() }
-        )
-    }
 }
 
 data class Hour(
@@ -77,35 +48,20 @@ data class Hour(
     val minute: Int,
     var taken: Boolean = false
 ){
-    fun toMap(): Map<String, Any> {
-        return mapOf(
-            "hour" to hour,
-            "minute" to minute,
-            "taken" to taken
-        )
-    }
+
 }
 
 data class Water(
     var amount: Int = 0
 ){
-    fun toMap(): Map<String, Any> {
-        return mapOf(
-            "amount" to amount
-        )
-    }
+
 }
 
 data class Emotion(
     val name: String,
     val state: EmotionState
 ){
-    fun toMap(): Map<String, Any> {
-        return mapOf(
-            "name" to name,
-            "state" to state.name
-        )
-    }
+
 }
 
 enum class EmotionState {
@@ -113,11 +69,18 @@ enum class EmotionState {
 }
 
 data class PatientDataWithId(
-    val id: String,
-    val data: PatientData
+    val id: String = "",
+    val data: PatientData = PatientData()
 )
 
 data class DoctorDataWithId(
-    val id: String,
-    val data: DoctorData
+    val id: String = "",
+    val data: DoctorData = DoctorData()
+)
+
+data class User(
+    val email: String = "",
+    val userType: String = "",
+    val patientData: PatientData? = null,
+    val doctorData: DoctorData? = null
 )

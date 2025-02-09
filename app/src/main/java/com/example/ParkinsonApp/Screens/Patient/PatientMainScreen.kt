@@ -1,6 +1,7 @@
 package com.example.ParkinsonApp.Screens.Patient
 
 import EmotionUI
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
@@ -19,9 +20,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,13 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.ParkinsonApp.Firebase.FirebaseRepository
 import kotlinx.coroutines.launch
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ParkinsonApp.DataTypes.EmotionState
 import com.example.ParkinsonApp.DataTypes.MedicationUI
+import com.example.ParkinsonApp.Firebase.FirebaseRepository
 import com.example.ParkinsonApp.ViewModels.PatientViewModel
 import emotionsList
 
@@ -49,10 +48,11 @@ fun PatientMainScreen(
     paddingValues: PaddingValues
 ) {
 
-    val patientData by patientViewModel.patientData.collectAsState()
+    val patientData by patientViewModel.patientData.collectAsStateWithLifecycle()
 
     val patientName = patientData?.lastName ?: ("" + patientData?.firstName) ?: ""
     val nextMedicationDetail by patientViewModel.nextMedicationDetail.collectAsState()
+    val waterIntake by patientViewModel.waterIntake.collectAsStateWithLifecycle()
 
 
     Column(
@@ -79,9 +79,9 @@ fun PatientMainScreen(
         )
 
 
-        // Water Intake
+
         WaterIntakeBox(
-            waterIntake = 0,
+            waterIntake = waterIntake ,
             onAddGlass = {
                 patientViewModel.incrementWaterIntake()
             },
@@ -232,6 +232,7 @@ fun WaterIntakeBox(
     onAddGlass: () -> Unit,
     onRemoveGlass: () -> Unit
 ) {
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -268,15 +269,15 @@ fun WaterIntakeBox(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview
 @Composable
 fun PreviewPatientMainScreen() {
-    val sharedViewModel = PatientViewModel(firebaseRepository = FirebaseRepository())
     PatientMainScreen(
-        patientViewModel = sharedViewModel,
+        patientViewModel = PatientViewModel(firebaseRepository = FirebaseRepository()),
         onMedicationBoxClicked = {},
-    onMealBoxClicked = {},
-        onLogout = { /* Handle logout action */ },
+        onMealBoxClicked = {},
+        onLogout = {},
         paddingValues = PaddingValues(16.dp)
     )
 }
+

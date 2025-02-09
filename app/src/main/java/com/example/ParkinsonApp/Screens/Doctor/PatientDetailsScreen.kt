@@ -13,10 +13,10 @@ import com.example.ParkinsonApp.ViewModels.DoctorViewModel
 @Composable
 fun PatientDetailsScreen(
     patientId: String,
-    doctorViewModel: DoctorViewModel
+    sharedViewModel: DoctorViewModel
 ) {
     // The sharedViewModel fetches patient details from your FirebaseRepository
-    val patient by doctorViewModel.getPatientById(patientId).collectAsState()
+    val patient by sharedViewModel.getPatientById(patientId).collectAsState()
 
     patient?.let {
         Column(
@@ -41,13 +41,4 @@ fun PatientDetailsScreen(
                 .padding(16.dp)
         )
     }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewPatientDetailsScreen() {
-    PatientDetailsScreen(
-        patientId = "patientId",
-        DoctorViewModel(firebaseRepository = FirebaseRepository())
-    )
 }

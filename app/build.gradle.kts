@@ -67,6 +67,7 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1")
     implementation(libs.firebase.auth.ktx)
+    implementation("com.google.android.gms:play-services-auth:20.2.0")
     implementation("com.google.dagger:hilt-android:2.40.5")
     implementation("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
     kapt("com.google.dagger:hilt-android-compiler:2.40.5")

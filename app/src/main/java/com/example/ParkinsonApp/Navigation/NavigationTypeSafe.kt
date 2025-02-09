@@ -38,10 +38,8 @@ fun NavigationTypeSafe() {
     val firebaseRepository = FirebaseRepository()
     val loginViewModel: LoginViewModel =
         viewModel(factory = GenericViewModelFactory { LoginViewModel(firebaseRepository) })
-    val doctorViewModel: DoctorViewModel =
-        viewModel(factory = GenericViewModelFactory { DoctorViewModel(firebaseRepository) })
-    val patientViewModel: PatientViewModel =
-        viewModel(factory = GenericViewModelFactory { PatientViewModel(firebaseRepository) })
+    val patientViewModel: PatientViewModel = viewModel(factory = GenericViewModelFactory { PatientViewModel(firebaseRepository) })
+    val doctorViewModel: DoctorViewModel = viewModel(factory = GenericViewModelFactory { DoctorViewModel(firebaseRepository) })
 
     Log.d("NavigationTypeSafe", "Navigation initialized.")
 

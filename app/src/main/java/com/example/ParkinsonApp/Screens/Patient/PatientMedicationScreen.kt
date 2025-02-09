@@ -35,11 +35,11 @@ import com.example.ParkinsonApp.ViewModels.PatientViewModel
 
 @Composable
 fun PatientMedicationScreen(
-    patientViewModel: PatientViewModel,
+    sharedViewModel: PatientViewModel,
     paddingValues: PaddingValues,
     onShareClick: () -> Unit
 ) {
-    val patientData by patientViewModel.patientData.collectAsState()
+    val patientData by sharedViewModel.patientData.collectAsState()
     val patientName = "${patientData?.firstName ?: ""} ${patientData?.lastName ?: ""}"
     val medications = patientData?.medications?.medications ?: listOf()
 

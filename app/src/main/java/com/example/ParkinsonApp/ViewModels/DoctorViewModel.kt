@@ -19,35 +19,29 @@ class DoctorViewModel(
     val patients: StateFlow<List<PatientDataWithId>> get() = _patients
     private val _doctorData = MutableStateFlow<DoctorDataWithId?>(null)
     val doctorData: StateFlow<DoctorDataWithId?> get() = _doctorData
-    val doctorId = firebaseRepository.getCurrentUserId()
 
     init {
-        loadPatients()
         loadDoctorData()
     }
 
-    private fun loadPatients() {
 
+    private fun loadDoctorData() {
+        val doctorId = firebaseRepository.getCurrentUserId()
         if (doctorId != null) {
-            viewModelScope.launch {
-                firebaseRepository.getPatientsData(doctorId) { patients ->
-                    _patients.value = patients
+            firebaseRepository.getDoctorData(doctorId) { doctorDataWithId ->
+                if (doctorDataWithId != null) {
+                    _doctorData.value = doctorDataWithId
+                    // After loading doctor data, load patients data
+                    loadPatientsData(doctorDataWithId.data.patients)
                 }
             }
-        } else {
-            // Handle the case where the user is not authenticated
-            _patients.value = emptyList()
         }
     }
 
-    private fun loadDoctorData() {
-        if (doctorId != null) {
-            viewModelScope.launch {
-                firebaseRepository.getDoctorData(doctorId) { data ->
-                    data?.let {
-                        _doctorData.value = it
-                    }
-                }
+    private fun loadPatientsData(patientIds: List<String>) {
+        if (patientIds.isNotEmpty()) {
+            firebaseRepository.getPatientsData(patientIds) { patients ->
+                _patients.value = patients
             }
         }
     }

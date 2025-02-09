@@ -23,11 +23,12 @@ class PatientViewModel(
     private val firebaseRepository: FirebaseRepository,
 ) : ViewModel() {
 
-    private val _waterIntake = MutableLiveData<Int>(0)
-    val waterIntake: LiveData<Int> get() = _waterIntake
+    private val _waterIntake = MutableStateFlow<Int>(0)
+    val waterIntake: StateFlow<Int> get() = _waterIntake
     val patientId = firebaseRepository.getCurrentUserId()!!
     private val _patientData = MutableStateFlow<PatientDataWithId?>(null)
     val patientData: StateFlow<PatientData?> get() = _patientData.map { it?.data }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
 
     val nextMedicationDetail: StateFlow<MedicationUI?> = _patientData.map { data ->
         calculateNextMedication(data?.data?.medications)
@@ -49,30 +50,23 @@ class PatientViewModel(
     }
 
     fun updateWaterIntake() {
-        firebaseRepository.updateWaterIntake(patientId, _waterIntake.value ?: 0) { success ->
-            if (success) {
-                // Log the action
-                val patientData = patientData.value // Assuming you have access to patient's first and last name
-                val actionDescription = "Updated water intake to $_waterIntake glasses."
-                val patientAction = PatientAction(
-                    patientId = patientId,
-                    patientFirstName = patientData?.firstName ?: "",
-                    patientLastName = patientData?.lastName ?: "",
-                    actionDescription = actionDescription,
-                    actionType = ActionType.WATER_INTAKE_UPDATED
-                )
-                firebaseRepository.logPatientAction(patientAction) { /* Handle result if needed */ }
+        firebaseRepository.updateWaterIntake(patientId, _waterIntake.value ?: 0) {  success ->
+            if (!success) {
+                // Handle error
+
             }
         }
     }
 
     fun incrementWaterIntake() {
-        _waterIntake.value = (_waterIntake.value ?: 0) + 1
+        val newAmount = (_waterIntake.value ?: 0) + 1
+        _waterIntake.value = newAmount // Update the water intake flow
         updateWaterIntake()
     }
 
     fun decrementWaterIntake() {
-        _waterIntake.value = (_waterIntake.value ?: 0).coerceAtLeast(1) - 1
+        val newAmount = (_waterIntake.value ?: 0).coerceAtLeast(1) - 1
+        _waterIntake.value = newAmount // Update the water intake flow
         updateWaterIntake()
     }
 

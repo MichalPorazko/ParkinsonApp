@@ -18,7 +18,6 @@ import com.example.ParkinsonApp.Firebase.FirebaseRepository
 import com.example.ParkinsonApp.ViewModels.PatientViewModel
 
 
-
 //data class PatientData(
 //    val firstName: String = "",
 //    val lastName: String = "",
@@ -29,11 +28,11 @@ import com.example.ParkinsonApp.ViewModels.PatientViewModel
 
 @Composable
 fun PatientProfileScreen(
-    patientViewModel: PatientViewModel,
+    sharedViewModel: PatientViewModel,
     onLogout: () -> Unit,
     paddingValues: PaddingValues
 ) {
-    val patientData by patientViewModel.patientData.collectAsState()
+    val patientData by sharedViewModel.patientData.collectAsState()
 
     val patientName = "${patientData?.firstName ?: ""} ${patientData?.lastName ?: ""}"
     val medicationSchedule = patientData?.medications ?: MedicationSchedule()
@@ -56,8 +55,8 @@ fun PatientProfileScreen(
         // Patient Details
         ProfileItem(label = "Name", value = patientName)
         ProfileItem(label = "Email", value = medicationSchedule.medications.toString())
-        ProfileItem(label = "Doctor", value = waterIntake.toMap().toString())
-        ProfileItem(label = "Emotions", value = emotions.map(Emotion::toMap).toString())
+        ProfileItem(label = "Doctor", value = waterIntake.toString())
+        ProfileItem(label = "Emotions", value = emotions.toString())
 
         Spacer(modifier = Modifier.height(24.dp))
 

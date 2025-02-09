@@ -1,5 +1,4 @@
-### your config ....
-
+# -- POCZĄTEK: Reguły z kotlinx.serialization --
 # Keep `Companion` object fields of serializable classes.
 # This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
 -if @kotlinx.serialization.Serializable class **
@@ -26,3 +25,9 @@
 
 # @Serializable and @Polymorphic are used at runtime for polymorphic serialization.
 -keepattributes RuntimeVisibleAnnotations,AnnotationDefault
+# -- KONIEC: Reguły z kotlinx.serialization --
+
+# -- DODAJ TUTAJ: Regułę wykluczającą konkretne pakiety przed obfuskacją --
+# Zamiast 'com.yourcompany.somepackage', wstaw pakiet, który musisz wykluczyć
+# (np. klasy z Firebase Performance, Crashlytics itp.)
+-keep class com.example.ParkinsonApp.** { *; }
